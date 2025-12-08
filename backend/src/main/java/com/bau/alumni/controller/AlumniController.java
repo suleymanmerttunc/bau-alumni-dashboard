@@ -33,4 +33,10 @@ public class AlumniController {
         Alumni savedAlumni = alumniService.saveAlumni(alumni);
         return ResponseEntity.ok(savedAlumni);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAlumni(@PathVariable Long id) {
+        alumniService.deleteAlumni(id);
+        return ResponseEntity.noContent().build();
+    }
 }

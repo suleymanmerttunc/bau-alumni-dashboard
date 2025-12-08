@@ -9,4 +9,6 @@ public interface AlumniService {
     
     // Filtreleme metodları
     List<Alumni> getAlumniByYear(Integer year);
+    
+    public void deleteAlumni(Long id);
 }

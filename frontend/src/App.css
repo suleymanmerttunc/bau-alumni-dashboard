@@ -1,42 +1,115 @@
+/* --- 1. GOOGLE FONTS (Otomatik Yükleme - Modern Yazı Tipleri) --- */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
+
+/* --- 2. GENEL SAYFA AYARLARI --- */
+html {
+  overflow-y: scroll; /* Zıplamayı önleyen kod burada kalmaya devam ediyor */
+}
+
+body {
+  background-color: #f4f6f8; /* Gözü yormayan modern gri ton */
+  font-family: 'Inter', sans-serif; /* Okunabilirliği yüksek metin fontu */
+  color: #333;
+  min-height: 100vh;
+  margin: 0;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Başlıklar için daha havalı ve tok bir font */
+h1, h2, h3, h4, h5, h6, .navbar-brand, .card-title {
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* --- 3. NAVBAR TASARIMI (Profesyonel Mavi Gradyan) --- */
+.navbar {
+  background: linear-gradient(90deg, #0f2027 0%, #203a43 50%, #2c5364 100%) !important; /* Koyu, kurumsal tema */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: white !important;
 }
 
+/* --- 4. KART TASARIMLARI (Premium Look) --- */
 .card {
-  padding: 2em;
+  border: none !important;
+  border-radius: 16px !important;
+  background-color: #ffffff;
+  /* Hafif bir sınır çizgisi yerine gölge tercih ediyoruz */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04); 
 }
 
-.read-the-docs {
-  color: #888;
+/* Hover Efekti (Kartın üzerine gelince) */
+.hover-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.hover-card:hover {
+  transform: translateY(-8px); /* Yukarı süzülme */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important; /* Belirgin gölge */
+}
+
+/* İstatistik Kartları (Renkli olanlar) */
+.bg-primary, .bg-success {
+  border-radius: 16px !important;
+  border: none !important;
+  /* Hafif parıltı efekti */
+  background-image: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+}
+
+/* --- 5. MEZUN PROFİL RESMİ --- */
+.rounded-circle.bg-light {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  background-color: #f1f3f5 !important;
+  color: #333;
+  font-size: 2.5rem;
+}
+
+/* --- 6. BUTONLAR --- */
+.btn {
+  border-radius: 8px !important;
+  padding: 8px 16px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+/* Buton gölgeleri */
+.btn-primary {
+  background-color: #0d6efd;
+  border: none;
+  box-shadow: 0 4px 6px rgba(13, 110, 253, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* --- 7. SCROLLBAR (Opsiyonel Güzelleştirme) --- */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
 }

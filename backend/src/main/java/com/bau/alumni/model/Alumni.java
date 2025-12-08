@@ -27,7 +27,11 @@ public class Alumni {
 
     @Column(name = "job_title")
     private String jobTitle;
+    
+    @Column(name = "linkedin_url")
+    private String linkedinUrl;
 
+   
     // --- İLİŞKİLER ---
     // Bir mezun bir şirkette çalışır (Many Alumni -> One Company)
     @ManyToOne
@@ -94,6 +98,15 @@ public class Alumni {
 
     public Company getCompany() { return company; }
     public void setCompany(Company company) { this.company = company; }
+    
+    public String getLinkedinUrl() {
+        return linkedinUrl;
+    }
+
+    public void setLinkedinUrl(String linkedinUrl) {
+        this.linkedinUrl = linkedinUrl;
+    }
+
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

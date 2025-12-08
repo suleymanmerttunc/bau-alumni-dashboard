@@ -32,4 +32,9 @@ public class AlumniServiceImpl implements AlumniService {
     public List<Alumni> getAlumniByYear(Integer year) {
         return alumniRepository.findByGraduationYear(year);
     }
+    
+    @Override
+    public void deleteAlumni(Long id) {
+        alumniRepository.deleteById(id);
+    }
 }
