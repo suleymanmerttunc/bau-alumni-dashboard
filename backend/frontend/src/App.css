@@ -1,0 +1,199 @@
+/* =========================================
+   1. DEĞİŞKENLER (Renk Temaları)
+   ========================================= */
+:root {
+  /* LIGHT MODE (Varsayılan) */
+  --bg-body: #f4f6f8;
+  --bg-card: #ffffff;
+  --text-main: #333333;
+  --text-muted: #6c757d;
+  --border-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.04);
+  --input-bg: #ffffff;
+  --input-border: #ced4da;
+  --header-bg: #ffffff; /* Kart başlıkları için */
+}
+
+[data-theme="dark"] {
+  /* DARK MODE */
+  --bg-body: #121212; /* Koyu gri arka plan */
+  --bg-card: #1e1e1e; /* Kartlar */
+  --text-main: #e0e0e0; /* Açık yazı rengi */
+  --text-muted: #a0a0a0;
+  --border-color: #333333;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --input-bg: #2c2c2c; /* Input ve gri kutular */
+  --input-border: #444444;
+  --header-bg: #1e1e1e; /* Kart başlıkları kartla aynı renk */
+}
+
+/* =========================================
+   2. GENEL AYARLAR
+   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap');
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+#root {
+  width: 100%;
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand, .card-title {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-main);
+  letter-spacing: -0.5px;
+}
+
+/* =========================================
+   3. BİLEŞENLER
+   ========================================= */
+
+/* --- Navbar --- */
+.navbar {
+  background: linear-gradient(90deg, #0f2027 0%, #203a43 50%, #2c5364 100%) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: white !important;
+}
+
+/* --- Kartlar --- */
+.card {
+  border: none !important;
+  border-radius: 16px !important;
+  background-color: var(--bg-card);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  transition: background-color 0.3s;
+  overflow: hidden; /* Köşelerden taşmayı önler */
+}
+
+.hover-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.hover-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
+}
+
+.card-text, .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* --- Kart Başlıkları --- */
+.card-header {
+  background-color: var(--header-bg) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+.card-header h5 {
+  color: var(--text-main) !important;
+  margin: 0;
+}
+
+/* --- İstatistik Kartları --- */
+.bg-primary, .bg-success {
+  border-radius: 16px !important;
+  color: white !important;
+}
+.bg-primary .card-text, .bg-success .card-text {
+  color: white !important;
+}
+
+/* --- Gri Kutucuklar (Mezun Detayları) --- */
+.bg-light {
+  background-color: var(--input-bg) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* --- Profil Resmi Yuvarlağı --- */
+.bg-light.rounded-circle {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  background-color: var(--bg-body) !important; /* Arka planla uyumlu */
+  border: 1px solid var(--border-color);
+  font-size: 2.5rem;
+}
+
+/* --- Inputlar ve Selectler --- */
+.form-control, .form-select {
+  background-color: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-main) !important;
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+}
+
+/* --- Butonlar --- */
+.btn {
+  border-radius: 8px !important;
+  padding: 8px 16px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+/* --- Modal (Popup) --- */
+.modal-content {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+.modal-header, .modal-footer {
+  border-color: var(--border-color);
+}
+
+/* Çarpı İkonu Düzeltmesi */
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* =========================================
+   4. HARİTA & ÖZEL DÜZELTMELER
+   ========================================= */
+
+/* Haritayı Gece Moduna Çevir (Invert Tekniği) */
+[data-theme="dark"] .leaflet-tile-pane {
+  filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
+[data-theme="dark"] .leaflet-container {
+  background: #222 !important;
+}
+
+/* Scrollbar Güzelleştirme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-body);
+}
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
