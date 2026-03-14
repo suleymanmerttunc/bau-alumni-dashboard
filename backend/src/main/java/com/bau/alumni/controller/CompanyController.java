@@ -2,7 +2,6 @@ package com.bau.alumni.controller;
 
 import com.bau.alumni.model.Company;
 import com.bau.alumni.service.CompanyService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +13,6 @@ public class CompanyController {
 
     private final CompanyService companyService;
 
-    @Autowired
     public CompanyController(CompanyService companyService) {
         this.companyService = companyService;
     }

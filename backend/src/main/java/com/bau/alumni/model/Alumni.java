@@ -30,6 +30,12 @@ public class Alumni {
     
     @Column(name = "linkedin_url")
     private String linkedinUrl;
+    
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
 
    
     // --- İLİŞKİLER ---
@@ -45,7 +51,7 @@ public class Alumni {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Otomatik tarih atama
+    // Otomatik tarih atama işlemi
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -99,15 +105,15 @@ public class Alumni {
     public Company getCompany() { return company; }
     public void setCompany(Company company) { this.company = company; }
     
-    public String getLinkedinUrl() {
-        return linkedinUrl;
-    }
-
-    public void setLinkedinUrl(String linkedinUrl) {
-        this.linkedinUrl = linkedinUrl;
-    }
-
+    public String getLinkedinUrl() {  return linkedinUrl; }
+    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl;}
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }

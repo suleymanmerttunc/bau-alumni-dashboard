@@ -2,7 +2,6 @@ package com.bau.alumni.controller;
 
 import com.bau.alumni.model.Sector;
 import com.bau.alumni.service.SectorService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +13,6 @@ public class SectorController {
 
     private final SectorService sectorService;
 
-    @Autowired
     public SectorController(SectorService sectorService) {
         this.sectorService = sectorService;
     }

@@ -1,14 +1,16 @@
 package com.bau.alumni.service;
 
-import com.bau.alumni.model.Alumni;
-import java.util.List;
+import com.bau.alumni.dto.AlumniDTO;
+import com.bau.alumni.dto.AlumniCreateRequest;
+import org.springframework.data.domain.Page;
 
 public interface AlumniService {
-    List<Alumni> getAllAlumni();
-    Alumni saveAlumni(Alumni alumni);
+    // page: kaçıncı sayfa (0'dan başlar), size: bir sayfada kaç kayıt olacak
+    Page<AlumniDTO> getAllAlumni(int page, int size);
     
-    // Filtreleme metodları
-    List<Alumni> getAlumniByYear(Integer year);
+    AlumniDTO saveAlumni(AlumniCreateRequest request);
     
-    public void deleteAlumni(Long id);
+    Page<AlumniDTO> getAlumniByYear(Integer year, int page, int size);
+    
+    void deleteAlumni(Long id);
 }
