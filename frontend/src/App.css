@@ -131,7 +131,7 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .card-title {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto;
+  margin: 0;
   background-color: var(--bg-body) !important; /* Arka planla uyumlu */
   border: 1px solid var(--border-color);
   font-size: 2.5rem;
@@ -196,4 +196,17 @@ h1, h2, h3, h4, h5, h6, .navbar-brand, .card-title {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
+}
+
+.animate-bottom {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.chatbot-wrapper button:hover {
+  background-color: #0072d6 !important;
 }
