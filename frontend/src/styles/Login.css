@@ -1,0 +1,21 @@
+.form-footer {
+  width: 100%;
+  padding-top: 15px;
+}
+
+.footer-link-btn {
+  background: none;
+  border: none;
+  color: #666; /* Hafif gri, dikkat dağıtmayan */
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.footer-link-btn:hover {
+  color: #8c1515; /* Hover olunca Stanford Kırmızısı */
+  text-decoration: underline;
+}

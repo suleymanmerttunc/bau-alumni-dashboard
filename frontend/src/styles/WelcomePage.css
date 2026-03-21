@@ -1,0 +1,582 @@
+/* Stanford & BAU Tipografi Entegrasyonu */
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+Pro:wght@400;600;700;900&family=Source+Sans+Pro:wght@300;400;600;700&display=swap');
+
+/* Genel Sayfa Yapısı */
+.welcome-page-main {
+    font-family: 'Source Sans Pro', sans-serif;
+    background-color: #ffffff;
+    color: #2e2d29;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+}
+
+/* =========================================
+   1. UTILITY BAR (ÜST İNCE GRİ ŞERİT)
+   ========================================= */
+.utility-bar {
+    background-color: #f1f1f1 !important;
+    border-bottom: 1px solid #ddd;
+    padding: 6px 0;
+}
+
+.utility-link,
+.utility-search,
+.utility-lang {
+    font-size: 13px;
+    color: #5e5e5e !important;
+    text-decoration: none !important;
+    background: none;
+    border: none;
+    transition: color 0.2s ease;
+}
+
+.utility-link:hover {
+    color: #c41e3a !important;
+}
+
+.utility-login-btn {
+    font-size: 13px;
+    font-weight: 700 !important;
+    color: #2e2d29 !important;
+    background: none;
+    border: none;
+    text-decoration: none;
+}
+
+.utility-login-btn:hover {
+    color: #c41e3a !important;
+}
+
+/* =========================================
+   2. MAIN NAVBAR (LOGO VE ANA MENÜ)
+   ========================================= */
+.main-navbar {
+    padding: 20px 0;
+    border-bottom: 3px solid #c41e3a !important;
+    background-color: #ffffff !important;
+}
+
+.brand-bau {
+    font-size: 38px;
+    font-weight: 900;
+    color: #c41e3a !important;
+}
+
+.brand-alumni {
+    font-size: 34px;
+    font-weight: 300;
+    color: #2e2d29 !important;
+    margin-left: 4px;
+}
+
+.nav-item {
+    text-decoration: none !important;
+    color: #2e2d29 !important;
+    font-weight: 400;
+    font-size: 16px;
+    transition: color 0.2s ease;
+}
+
+.nav-item:hover {
+    color: #c41e3a !important;
+}
+
+/* =========================================
+   3. HERO SECTION (ARKA PLAN VE YAZILAR)
+   ========================================= */
+.hero-section-modern {
+    background-image: url('/photos/bau_ogrenciler_giris.jpg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover;
+    height: 650px;
+    position: relative;
+}
+
+/* Fotoğrafın üzerindeki koyu katman */
+.hero-dark-overlay {
+    background-color: rgba(0, 0, 0, 0.3);
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Yazıları içeren koyu kutu */
+.hero-content-box {
+    background-color: rgba(0, 0, 0, 0.65) !important;
+    padding: 60px !important;
+    max-width: 900px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.hero-serif-title {
+    font-family: 'Source Serif Pro', serif !important;
+    font-size: 82px !important;
+    font-weight: 900;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.hero-subtitle {
+    font-size: 20px;
+    line-height: 1.6;
+    font-weight: 300;
+    color: #ffffff;
+    margin-bottom: 40px;
+}
+
+/* =========================================
+   4. STORIES & CARDS
+   ========================================= */
+.stories-section-title {
+    font-family: 'Source Serif Pro', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #2e2d29;
+}
+
+.alumni-modern-card {
+    height: 100%;
+    border: none;
+    background: none;
+    transition: transform 0.3s ease;
+}
+
+.card-image-box {
+    overflow: hidden;
+    height: 260px;
+    margin-bottom: 20px;
+}
+
+.card-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.alumni-modern-card:hover .card-image-box img {
+    transform: scale(1.08);
+}
+
+.card-category-tag {
+    color: #c41e3a;
+    /* BAU Kırmızısı */
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.card-main-heading {
+    font-family: 'Source Serif Pro', serif;
+    font-size: 23px;
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 15px;
+    color: #2e2d29;
+}
+
+.card-short-desc {
+    color: #5e5e5e;
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+/* İMZALI KIRMIZI KART (image_f1a7be.jpg'deki sağ kart) */
+.signature-red-card {
+    background-color: #c41e3a !important;
+    color: white !important;
+    padding: 45px !important;
+    min-height: 380px;
+}
+
+.signature-title {
+    font-family: 'Source Serif Pro', serif;
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.signature-subtitle {
+    opacity: 0.85;
+    font-size: 18px;
+    margin-top: 15px;
+}
+
+/* =========================================
+   5. TRAVEL SECTION (SİYAH ŞERİT)
+   ========================================= */
+.travel-dark-banner {
+    background-color: #171717;
+    color: white;
+    padding: 110px 0;
+}
+
+.travel-label {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.travel-title {
+    font-family: 'Source Serif Pro', serif;
+    font-size: 58px;
+    font-weight: 900;
+    margin: 25px 0;
+}
+
+.travel-text {
+    max-width: 750px;
+    margin: 0 auto 40px;
+    font-size: 18px;
+    opacity: 0.75;
+}
+
+.travel-btn-outline {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 14px 40px;
+    font-weight: 700;
+    text-transform: uppercase;
+    transition: 0.3s;
+}
+
+.travel-btn-outline:hover {
+    background: white;
+    color: black;
+}
+
+/* =========================================
+   INSTAGRAM FEED SECTION
+   ========================================= */
+.insta-feed-title {
+  font-family: 'Source Serif Pro', serif;
+  font-weight: 700;
+  color: #2e2d29;
+  margin-bottom: 30px;
+}
+
+.insta-profile-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+  margin-bottom: 30px;
+}
+
+.insta-img-card {
+  aspect-ratio: 1 / 1; /* Kare format */
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+
+.insta-img-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.insta-img-card:hover img {
+  transform: scale(1.1);
+  filter: brightness(0.8);
+}
+
+/* Stanford Red Buton Uyumu */
+.insta-profile-header .btn-danger {
+  background-color: #8c1515 !important;
+  border: none;
+  border-radius: 4px;
+}
+
+/* =========================================
+   STANFORD ALUMNI FOOTER 
+   ========================================= */
+
+.alumni-footer {
+  background-color: #171717; /* Stanford Footer Ana Rengi */
+  position: relative;
+  width: 100%;
+}
+
+.footer-content-wrapper {
+  padding: 220px 0 90px 0;
+  min-height: 550px;
+  background: 
+    linear-gradient(to bottom, rgba(23, 23, 23, 0.4) 0%, rgba(23, 23, 23, 1) 95%), 
+    url('/photos/Bau_campus.png');
+  background-size: cover;
+  background-position: center top;
+  display: flex;
+  align-items: center;
+}
+
+.alumni-footer .container-fluid {
+  max-width: 1400px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+/* Sol Taraftaki Logo Bölümü */
+.footer-logo-section {
+  margin-bottom: 60px;
+}
+
+/* Footer Row - Sütunlar arasında dar boşluk */
+.alumni-footer .row {
+  gap: 0;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+/* Footer Sütun */
+.footer-col {
+  margin-bottom: 50px;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+.footer-bau {
+  font-size: 40px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  font-family: 'Source Serif Pro', serif;
+}
+.footer-alumni {
+  font-size: 38px;
+  font-weight: 300;
+  color: #ffffff;
+  font-family: 'Source Serif Pro', serif;
+}
+
+/* Sütun Başlığı (BAU Alumni Association) */
+.footer-col-title {
+  color: #ffffff;
+  font-size: 18px; 
+  font-weight: 700;
+  margin-bottom: 30px;
+  letter-spacing: 0.3px;
+  font-family: 'Source Serif Pro', serif;
+  line-height: 1.3;
+}
+
+/* Adres ve İletişim Metni */
+.footer-contact-text {
+  color: #ffffff; 
+  font-size: 16px; 
+  line-height: 1.9;
+  font-weight: 400;
+  opacity: 0.95;
+  margin-bottom: 25px;
+}
+
+.footer-map-link {
+  color: #ffffff;
+  text-decoration: none;
+  opacity: 0.95;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.footer-map-link:hover {
+  color: #c41e3a;
+  text-decoration: underline;
+}
+
+/* Link Listesi - Stanford'daki o sağa yatık/blok duruşu sağlayan yer */
+.footer-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-link-list li {
+  margin-bottom: 16px;
+}
+
+.footer-link-list a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 400;
+  opacity: 0.9;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  display: inline-block;
+}
+
+.footer-link-list a:hover {
+  opacity: 1;
+  color: #c41e3a;
+  text-decoration: underline;
+}
+
+/* Sosyal Medya İkonları */
+.footer-social-icons {
+  margin-top: 40px;
+  display: flex;
+  gap: 22px;
+}
+.footer-social-icons a {
+  font-size: 32px;
+  opacity: 0.85;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+.footer-social-icons a svg {
+  width: 28px;
+  height: 28px;
+  fill: #ffffff;
+  transition: all 0.3s ease;
+}
+
+.footer-social-icons a:hover {
+  opacity: 1;
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 8px rgba(196, 30, 58, 0.6));
+}
+
+.footer-social-icons a:hover svg {
+  fill: #c41e3a;
+}
+
+/* EN ALT KIRMIZI ŞERİT - TAM STANFORD RED */
+.footer-red-strip {
+  background-color: #8c1515; 
+  padding: 35px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.footer-red-strip .container-fluid {
+  max-width: 1400px;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.footer-red-brand {
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 700;
+  font-family: 'Source Serif Pro', serif;
+}
+
+.footer-red-links a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 16px;
+  margin-left: 30px;
+  opacity: 0.9;
+  font-weight: 400;
+  transition: all 0.2s ease;
+}
+.footer-red-links a:hover {
+  opacity: 1;
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+/* =========================================
+   INSTAGRAM FEED - STANFORD BIG & BOLD STYLE
+   ========================================= */
+
+/* 5'li kolon yapısı */
+.col-lg-2-4 {
+  width: 20%;
+}
+
+@media (max-width: 992px) {
+  .col-lg-2-4 { width: 33.33%; }
+}
+
+/* Küçük ekranlarda (Mobile) görselleri dikey olarak tam genişlikte göster */
+@media (max-width: 576px) {
+  .col-lg-2-4 { width: 100%; }
+  .insta-img-card { max-width: 400px; margin: 0 auto; } /* Mobile'da çok büyümesini engelle */
+}
+
+.insta-feed-title {
+  font-family: 'Source Serif Pro', serif;
+  font-size: 32px; 
+  font-weight: 700;
+  color: #2e2d29;
+}
+
+.insta-post-wrapper {
+  margin-bottom: 30px; /* Postlar arası boşluk */
+  transition: transform 0.3s ease;
+}
+
+/* Görsel Kartı - KRİTİK BÜYÜTME */
+.insta-img-card {
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 4px;
+  margin-bottom: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+.insta-img-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: filter 0.3s ease;
+}
+
+/* Hover Efekti */
+.insta-post-wrapper:hover {
+  transform: translateY(-8px); /* hover hareketi */
+}
+
+.insta-post-wrapper:hover .insta-img-card img {
+  filter: brightness(0.8);
+}
+
+/* Post Açıklama Metni (Zarif & Belirgin) */
+.insta-caption p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #333;
+  font-weight: 500;
+  text-align: left;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  padding-right: 10px;
+}
+
+.insta-post-wrapper:hover .insta-caption p {
+  color: #8c1515;
+  text-decoration: underline;
+}
+
+.insta-profile-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 35px;
+  max-width: 700px;
+  margin: 0 auto 50px;
+}
+
+/* Stanford Red Buton */
+.insta-profile-header .btn-danger {
+  background-color: #8c1515 !important;
+  border: none;
+  font-size: 14px;
+}
+
+.insta-profile-header .btn-danger {
+  background-color: #8c1515 !important;
+  border: none;
+}

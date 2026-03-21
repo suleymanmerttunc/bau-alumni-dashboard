@@ -10,6 +10,9 @@ public class Alumni {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "student_id", nullable = false)
+    private String studentId;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -78,8 +81,13 @@ public class Alumni {
     }
 
     // --- GETTERS & SETTERS ---
+    
+    
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public String getStudentId() {return studentId;}
+    public void setStudentId(String studentId) {this.studentId = studentId;}
+
+	public void setId(Long id) { this.id = id; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

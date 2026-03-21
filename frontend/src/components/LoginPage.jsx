@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import bauLogo from '../assets/bau-logo.jpg';
 import bauBackground from '../assets/bau-background.png';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { useTranslation } from 'react-i18next';
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = ({ onLogin, onNavigateToRegister }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false); 
@@ -13,17 +14,43 @@ const LoginPage = ({ onLogin }) => {
     const { t, i18n } = useTranslation();
 
     /**
-     * Kullanıcı adı ve şifre kontrolü yapar.
+     * Backend'e axios ile giriş isteği gönderir ve hata durumlarını yakalar.
      */
-    const handleSubmit = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        // Basit simülasyon kontrolü
-        if (username === 'admin' && password === '123') {
-            onLogin('admin');
-        } else if (username === 'ogrenci' && password === '123') {
-            onLogin('student');
-        } else {
-            setError(t('error_msg')); // Çeviri dosyasındaki hata mesajı
+        setError(''); // Hata mesajını temizle
+        
+        try {
+            // Backend'e istek atıyoruz
+            const response = await axios.post('http://localhost:8080/api/auth/login', {
+                username: username,
+                password: password
+            });
+
+            // Başarılıysa (Status 200)
+            const loggedInUser = response.data;
+            console.log("Giriş Başarılı:", loggedInUser);
+            
+            // Kullanıcı verisini App.jsx'e gönder
+            onLogin(loggedInUser);
+
+        } catch (error) {
+            // Hata durumlarını yakala (401: Yanlış Şifre, 403: Onay Bekliyor)
+            if (error.response) {
+                if (error.response.status === 403) {
+                    // Hesabı onay bekliyor
+                    setError(error.response.data || 'Hesabınız onaylanmadı. Lütfen admin onayını bekleyiniz.');
+                } else if (error.response.status === 401) {
+                    // Yanlış kullanıcı adı veya şifre
+                    setError('Kullanıcı adı veya şifre hatalı!');
+                } else {
+                    // Diğer backend hataları
+                    setError('Bir hata oluştu: ' + (error.response.data || 'Bilinmeyen hata'));
+                }
+            } else {
+                // Network veya sunucu bağlantı hatası
+                setError('Sunucuya bağlanılamadı. Backend çalışıyor mu?');
+            }
         }
     };
 
@@ -52,7 +79,7 @@ const LoginPage = ({ onLogin }) => {
 
                         {error && <div className="alert alert-danger text-center p-2 small mb-4">{error}</div>}
 
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleLogin}>
                             {/* Kullanıcı Adı Alanı */}
                             <div className="mb-3 text-start">
                                 <label className="form-label text-muted fw-bold mb-1" style={{ fontSize: '11px' }}>
@@ -104,14 +131,24 @@ const LoginPage = ({ onLogin }) => {
                             </button>
                         </form>
 
-                        {/* Şifremi Unuttum */}
-                        <div className="text-center mt-4">
+                        {/* Form Footer - Şifremi Unuttum */}
+                        <div className="form-footer d-flex justify-content-between align-items-center mt-4">
+                            {/* ŞİFREMİ UNUTTUM - SOLDA */}
                             <button
                                 className="btn btn-link text-decoration-none text-muted fw-bold p-0"
                                 style={{ fontSize: '12px', letterSpacing: '1px' }}
-                                onClick={(e) => e.preventDefault()}
+                                onClick={() => alert("Şifre sıfırlama maili gönderildi.")}
                             >
                                 {t('forgot_pass')}
+                            </button>
+
+                            {/* KAYIT OL - SAĞDA */}
+                            <button
+                                className="btn btn-link text-decoration-none text-primary fw-bold p-0"
+                                style={{ fontSize: '12px', letterSpacing: '1px' }}
+                                onClick={onNavigateToRegister}
+                            >
+                                KAYIT OL
                             </button>
                         </div>
                     </div>

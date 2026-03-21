@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, GeoJSON, Pane } from 'react-leaflet';
-import { Offcanvas } from 'react-bootstrap'; // Sağ panel için
+import { Offcanvas } from 'react-bootstrap'; 
 import 'leaflet/dist/leaflet.css';
 
-const InteractiveMap = ({ alumniList }) => {
+const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick }) => {
     const [geoJsonData, setGeoJsonData] = useState(null);
     const [selectedCity, setSelectedCity] = useState(null); 
     const [showSidebar, setShowSidebar] = useState(false);  
@@ -50,9 +50,11 @@ const InteractiveMap = ({ alumniList }) => {
     return (
         <>
             <div className="card shadow border-0 overflow-hidden" style={{ borderRadius: "15px" }}>
-                <div className="card-header bg-white py-3">
-                    <h5 className="mb-0 fw-bold text-primary">🌍 Küresel Mezun Ağı</h5>
-                    <small className="text-muted">Ülkelere tıklayarak yaklaşabilir, şehirlere tıklayarak mezunları görebilirsin.</small>
+                <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 className="mb-0 fw-bold text-primary">🌍 Küresel Mezun Ağı</h5>
+                        <small className="text-muted">Ülkelere tıklayarak yaklaşabilir, şehirlere tıklayarak mezunları görebilirsin.</small>
+                    </div>
                 </div>
                 
                 <div style={{ height: "500px", width: "100%", position: "relative" }}>
