@@ -28,7 +28,7 @@ public class AlumniCreateRequest {
     private String linkedinUrl;
     
     @NotNull(message = "Şirket ID zorunludur")
-    private Long companyId; // Frontend sadece şirket ID'sini gönderecek
+    private Long companyId;
 
     // --- GETTERS & SETTERS ---
     

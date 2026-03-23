@@ -38,13 +38,12 @@ public class AlumniServiceImpl implements AlumniService {
         this.userRepository = userRepository;
     }
 
-    // 1. ANA METOD: Interface'de muhtemelen bu isimle kayıtlıdır
     @Override
     public Page<AlumniDTO> getAllAlumni(int page, int size) {
         return getAllApprovedAlumni(page, size);
     }
 
-    // 2. ONAYLI MEZUNLAR (SAYFALI): Harita altındaki kartlar için
+    // ONAYLI MEZUNLAR (SAYFALI): Harita altındaki kartlar için
     @Override
     public Page<AlumniDTO> getAllApprovedAlumni(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -52,7 +51,7 @@ public class AlumniServiceImpl implements AlumniService {
         return alumniPage.map(this::convertToDTO);
     }
 
-    // 3. HARİTA NOKTALARI: Tüm onaylıları liste olarak döner
+    // HARİTA NOKTALARI: Tüm onaylıları liste olarak döner
     @Override
     public List<AlumniDTO> getAllApprovedList() {
         return alumniRepository.findAllApprovedAlumni()
@@ -61,16 +60,14 @@ public class AlumniServiceImpl implements AlumniService {
                 .collect(Collectors.toList());
     }
 
-    // 4. YILA GÖRE FİLTRE: Onaylıları yıla göre süzer
+    // YILA GÖRE FİLTRE: Onaylıları yıla göre süzer
     @Override
     public Page<AlumniDTO> getApprovedAlumniByYear(Integer year, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        // Eğer repository'de onaylı yıla göre süzme yoksa normal findBy kullanır
         Page<Alumni> alumniPage = alumniRepository.findByGraduationYear(year, pageable);
         return alumniPage.map(this::convertToDTO);
     }
     
-    // Interface uyumu için eski isimlendirme (Eğer Controller bunu çağırıyorsa)
     @Override
     public Page<AlumniDTO> getAlumniByYear(Integer year, int page, int size) {
         return getApprovedAlumniByYear(year, page, size);
@@ -79,15 +76,14 @@ public class AlumniServiceImpl implements AlumniService {
     @Override
     @Transactional
     public AlumniDTO saveAlumni(AlumniCreateRequest request) {
-        // 1. Şirket Kontrolü
         Company company = companyRepository.findById(request.getCompanyId())
                 .orElseThrow(() -> new ResourceNotFoundException("Şirket bulunamadı!"));
 
-        // 2. USER KAYDI (Senin girdiğin bilgilerle)
+        // USER KAYDI
         User newUser = new User();
         newUser.setStudentId(request.getStudentId());
-        newUser.setEmail(request.getEmail()); // Formdan gelen mail
-        newUser.setPassword(request.getPassword()); // Formdan gelen şifre
+        newUser.setEmail(request.getEmail());
+        newUser.setPassword(request.getPassword());
         newUser.setLinkedinUrl(request.getLinkedinUrl());
         newUser.setUsername(request.getFirstName().toLowerCase() + "." + request.getLastName().toLowerCase());
         
@@ -95,7 +91,7 @@ public class AlumniServiceImpl implements AlumniService {
         newUser.setRole("ROLE_USER");
         userRepository.save(newUser);
 
-        // 3. ALUMNI KAYDI
+        // ALUMNI KAYDI
         Alumni alumni = new Alumni();
         alumni.setStudentId(request.getStudentId());
         alumni.setFirstName(formatText(request.getFirstName()));

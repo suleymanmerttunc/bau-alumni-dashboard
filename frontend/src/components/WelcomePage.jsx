@@ -14,7 +14,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
 
     return (
         <div className="welcome-page-main">
-            {/* 1. ÜST İNCE UTILITY BAR (image_efed07.jpg'deki yapı) */}
+            {/* 1. ÜST İNCE UTILITY BAR */}
             <div className="utility-bar">
                 <div className="container-fluid d-flex justify-content-end align-items-center gap-4 px-lg-5">
                     <a href="#directory" className="utility-link">
@@ -50,7 +50,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                 </div>
             </nav>
 
-            {/* 3. HERO SECTION (Arka plan: bau_ogrenciler_giris.jpg) */}
+            {/* 3. HERO SECTION ARKA PLAN */}
             <header className="hero-section-modern">
                 <div className="hero-dark-overlay">
                     <div className="hero-content-box">
@@ -63,7 +63,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                 </div>
             </header>
 
-            {/* 4. STORIES SECTION (3'LÜ KART YÜZEYİ - image_f1a7be.jpg) */}
+            {/* 4. STORIES SECTION */}
             <section className="stories-grid-section container py-5">
                 <div className="text-center mb-5">
                     <h2 className="stories-section-title">{t('welcome_stories_title')}</h2>
@@ -111,7 +111,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                 </div>
             </section>
 
-            {/* 5. TRAVEL SECTION (SİYAH BANNER - image_f1a49c.jpg) */}
+            {/* 5. TRAVEL SECTION */}
             <section className="travel-dark-banner">
                 <div className="container text-center py-5">
                     <span className="travel-label">{t('welcome_travel_label')}</span>
@@ -121,9 +121,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                 </div>
             </section>
 
-            {/* =========================================
-         6. INSTAGRAM FEED SECTION (Stanford Big & Bold Style)
-         ========================================= */}
+            {/* 6. INSTAGRAM FEED SECTION  */}
             <section className="insta-feed-section py-5 bg-white">
                 <div className="container-fluid px-lg-5">
                     <div className="text-center mb-5">
@@ -132,7 +130,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                         </h4>
                     </div>
 
-                    {/* Instagram Profil Özeti (Center & Bold) */}
+                    {/* Instagram Profil Özeti */}
                     <div className="insta-profile-header d-flex flex-column flex-md-row justify-content-center align-items-center mb-5 gap-4">
                         <div className="insta-logo-wrap">
                             <img src="/photos/bau_logo.jpg" alt="Logo" className="rounded-circle shadow-sm" style={{ width: '70px', height: '70px', objectFit: 'cover' }} />
@@ -145,7 +143,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                         <a href="https://www.instagram.com/baunetworkclub/" target="_blank" rel="noreferrer" className="btn btn-danger btn-sm px-4 fw-bold shadow-sm">Follow</a>
                     </div>
 
-                    {/* Görsel Şeridi - image_f1a45c.jpg'deki gibi 5'li Dikeyleştirilmiş & Büyütülmüş */}
+                    {/* Instagram Görselleri */}
                     <div className="row g-4 justify-content-center"> {/* g-3 yerine g-4 ile boşlukları artırdık */}
                         {/* Post 1 */}
                         <div className="col-lg-2-4 col-md-4 col-12 mb-4">
@@ -210,9 +208,7 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                 </div>
             </section>
 
-            {/* =========================================
-         PROFESYONEL ALUMNI FOOTER (Stanford Klonu)
-         ========================================= */}
+            {/* PROFESYONEL ALUMNI FOOTER */}
             <footer className="alumni-footer">
                 <div className="footer-content-wrapper">
                     <div className="container-fluid px-lg-5">
@@ -235,22 +231,22 @@ const WelcomePage = ({ onNavigateToLogin }) => {
                                 <div className="footer-social-icons">
                                     <a href="https://www.facebook.com/BAUAlumniCenter/" target="_blank" rel="noreferrer" title="Facebook">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                                         </svg>
                                     </a>
                                     <a href="https://www.linkedin.com/showcase/baualumnirelationscenter/about/" target="_blank" rel="noreferrer" title="LinkedIn">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z"/>
+                                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" />
                                         </svg>
                                     </a>
                                     <a href="https://www.instagram.com/baunetworkclub/" target="_blank" rel="noreferrer" title="Instagram">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.117.626c-.794.297-1.473.702-2.146 1.371-.67.672-1.075 1.35-1.371 2.146-.297.77-.501 1.642-.56 2.925C.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.283.264 2.149.56 2.925.295.796.701 1.474 1.371 2.146.672.67 1.35 1.075 2.146 1.371.766.297 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.283-.059 2.149-.261 2.925-.56.796-.295 1.474-.701 2.146-1.371.67-.672 1.075-1.35 1.371-2.146.297-.766.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.059-1.283-.261-2.149-.56-2.925-.295-.796-.701-1.474-1.371-2.146-.672-.67-1.35-1.075-2.146-1.371-.766-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.009 4.849.070 1.171.054 1.805.244 2.227.408.56.217.96.477 1.382.896.419.42.679.822.896 1.381.164.422.354 1.057.408 2.227.061 1.264.07 1.645.07 4.849 0 3.203-.009 3.585-.07 4.849-.054 1.171-.244 1.805-.408 2.227-.217.56-.477.96-.896 1.382-.42.419-.822.679-1.381.896-.422.164-1.057.354-2.227.408-1.264.061-1.645.07-4.849.07-3.203 0-3.585-.009-4.849-.07-1.171-.054-1.805-.244-2.227-.408-.56-.217-.96-.477-1.382-.896-.419-.42-.679-.822-.896-1.381-.164-.422-.354-1.057-.408-2.227-.061-1.264-.07-1.645-.07-4.849 0-3.203.009-3.585.07-4.849.054-1.171.244-1.805.408-2.227.217-.56.477-.96.896-1.382.42-.419.822-.679 1.381-.896.422-.164 1.057-.354 2.227-.408 1.264-.061 1.645-.07 4.849-.07zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+                                            <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.117.626c-.794.297-1.473.702-2.146 1.371-.67.672-1.075 1.35-1.371 2.146-.297.77-.501 1.642-.56 2.925C.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.283.264 2.149.56 2.925.295.796.701 1.474 1.371 2.146.672.67 1.35 1.075 2.146 1.371.766.297 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.283-.059 2.149-.261 2.925-.56.796-.295 1.474-.701 2.146-1.371.67-.672 1.075-1.35 1.371-2.146.297-.766.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.059-1.283-.261-2.149-.56-2.925-.295-.796-.701-1.474-1.371-2.146-.672-.67-1.35-1.075-2.146-1.371-.766-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.009 4.849.070 1.171.054 1.805.244 2.227.408.56.217.96.477 1.382.896.419.42.679.822.896 1.381.164.422.354 1.057.408 2.227.061 1.264.07 1.645.07 4.849 0 3.203-.009 3.585-.07 4.849-.054 1.171-.244 1.805-.408 2.227-.217.56-.477.96-.896 1.382-.42.419-.822.679-1.381.896-.422.164-1.057.354-2.227.408-1.264.061-1.645.07-4.849.07-3.203 0-3.585-.009-4.849-.07-1.171-.054-1.805-.244-2.227-.408-.56-.217-.96-.477-1.382-.896-.419-.42-.679-.822-.896-1.381-.164-.422-.354-1.057-.408-2.227-.061-1.264-.07-1.645-.07-4.849 0-3.203.009-3.585.07-4.849.054-1.171.244-1.805.408-2.227.217-.56.477-.96.896-1.382.42-.419.822-.679 1.381-.896.422-.164 1.057-.354 2.227-.408 1.264-.061 1.645-.07 4.849-.07zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z" />
                                         </svg>
                                     </a>
                                     <a href="https://www.youtube.com/@baualumnicenter1762" target="_blank" rel="noreferrer" title="YouTube">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                         </svg>
                                     </a>
                                 </div>

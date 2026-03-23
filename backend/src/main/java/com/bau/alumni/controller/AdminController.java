@@ -25,7 +25,6 @@ public class AdminController {
     // 1. Onay Bekleyenleri DETAYLI Listele (JOIN Sorgusu ile)
     @GetMapping("/pending-users")
     public ResponseEntity<List<PendingUserResponse>> getPendingUsers() {
-        // Artık sadece User değil, Alumni bilgilerini de içeren DTO listesini dönüyoruz
         return ResponseEntity.ok(userRepository.findAllPendingUsersWithDetails());
     }
 
@@ -47,11 +46,8 @@ public class AdminController {
     public ResponseEntity<?> rejectUser(@PathVariable Long id) {
         return userRepository.findById(id)
                 .map(user -> {
-                    // Kullanıcı durumunu reddedildi yap
                     user.setStatus(UserStatus.REJECTED);
                     userRepository.save(user);
-
-                    // Haritada hayalet kayıt kalmasın diye Alumni kaydını sil
                     alumniRepository.deleteByStudentId(user.getStudentId());
 
                     return ResponseEntity.ok("Kullanıcı başvurusu reddedildi ve harita kaydı silindi.");

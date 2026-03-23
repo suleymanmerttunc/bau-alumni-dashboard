@@ -15,13 +15,12 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    private String authorName; // Paylaşan (Örn: Kariyer Merkezi)
+    private String authorName;
     
     private String type; // JOB, ANNOUNCEMENT, SUCCESS, EVENT
 
     private LocalDateTime createdAt;
 
-    // Hibernate için boş constructor şart
     public Post() {}
 
     @PrePersist

@@ -14,24 +14,24 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
     const { t, i18n } = useTranslation();
 
     /**
-     * Backend'e axios ile giriş isteği gönderir ve hata durumlarını yakalar.
+     * Backend'e axios ile giriş isteği gönderir ve hata durumlarını yakalar. Başarılı girişte kullanıcı verisini App.jsx'e gönderir.
      */
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(''); // Hata mesajını temizle
+        setError('');
         
         try {
-            // Backend'e istek atıyoruz
+            // Backend'e istek atıyoz
             const response = await axios.post('http://localhost:8080/api/auth/login', {
                 username: username,
                 password: password
             });
 
-            // Başarılıysa (Status 200)
+            // Başarılıysa 200 döner
             const loggedInUser = response.data;
             console.log("Giriş Başarılı:", loggedInUser);
             
-            // Kullanıcı verisini App.jsx'e gönder
+            // Kullanıcı verisini App.jsx'e gönderir
             onLogin(loggedInUser);
 
         } catch (error) {
@@ -49,7 +49,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                 }
             } else {
                 // Network veya sunucu bağlantı hatası
-                setError('Sunucuya bağlanılamadı. Backend çalışıyor mu?');
+                setError('Sunucuya bağlanılamadı.');
             }
         }
     };
@@ -66,7 +66,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
         <div className="container-fluid p-0 overflow-hidden vh-100">
             <div className="row g-0 h-100">
                 
-                {/* SOL TARAF: Login Formu (%50) */}
+                {/* SOL TARAF: Login Formu */}
                 <div className="col-lg-6 d-flex flex-column justify-content-center align-items-center bg-white px-5 shadow-lg position-relative" style={{ zIndex: 2 }}>
                     
                     <div style={{ maxWidth: '380px', width: '100%' }}>
@@ -148,12 +148,12 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                                 style={{ fontSize: '12px', letterSpacing: '1px' }}
                                 onClick={onNavigateToRegister}
                             >
-                                KAYIT OL
+                                {t('btn_register')}
                             </button>
                         </div>
                     </div>
 
-                    {/* --- DİL DEĞİŞTİRME METNİ (EN ALTA SABİT) --- */}
+                    {/* --- DİL DEĞİŞTİRME METNİ --- */}
                     <div className="position-absolute" style={{ bottom: '30px' }}>
                         <span 
                             onClick={toggleLanguage} 
@@ -171,7 +171,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                     </div>
                 </div>
 
-                {/* SAĞ TARAF: Arka Plan Resmi (%50) */}
+                {/* SAĞ TARAF: Arka Plan Resmi */}
                 <div
                     className="col-lg-6 d-none d-lg-block position-relative"
                     style={{

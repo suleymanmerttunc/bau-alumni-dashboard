@@ -50,7 +50,7 @@ function App() {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState({ title: '', content: '', authorName: '', type: 'JOB' });
 
-  // PENDING APPROVALS (ADMIN)
+  // ADMIN ONAY/RED İŞLEMLERİ
   const [showPendingModal, setShowPendingModal] = useState(false);
   const [pendingUsers, setPendingUsers] = useState([]); // Bu liste Backend'den gelecek
 
@@ -58,10 +58,10 @@ function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState('start');
 
-  // THEME
+  // TEMA
   const [darkMode, setDarkMode] = useState(false);
 
-  // ===== FETCH FUNCTIONS =====
+  // DATA FETCHING İŞLEMLERİ
   const fetchAlumniData = () => {
     setLoading(true);
     AlumniService.getAllAlumni()
@@ -93,7 +93,6 @@ function App() {
     }
   };
 
-  // LOGIN BAŞARISI SONRASI PENDING USERS'I ÇEK
   useEffect(() => {
     if (userRole === 'ROLE_ADMIN') {
       fetchPendingUsers();
@@ -103,8 +102,8 @@ function App() {
   // ===== HANDLERS =====
   const handleLoginSuccess = (user) => {
     setLoggedInUser(user);
-    setUserRole(user.role); // 'ROLE_ADMIN' veya 'ROLE_USER' gelir
-    setCurrentScreen('app'); // Dashboard'a yönlendir
+    setUserRole(user.role); // 'ROLE_ADMIN' veya 'ROLE_USER' gelir burda
+    setCurrentScreen('app');
     fetchAlumniData();
     fetchPosts();
   };
@@ -149,15 +148,14 @@ function App() {
     }
   };
 
-  // PENDING APPROVALS HANDLERS
+  // ADMIN ONAY/RED İŞLEMLERİ
   const handleApprove = async (userId) => {
     try {
       await axios.put(`http://localhost:8080/api/admin/approve/${userId}`);
-      
+
       // Listeyi günceleme (onaylınanı listeden çıkar)
       setPendingUsers(pendingUsers.filter(u => u.id !== userId));
 
-      // Şık Bildirim
       Swal.fire({
         title: 'Onaylandı!',
         text: 'Kullanıcı artık sisteme giriş yapabilir.',
@@ -186,7 +184,7 @@ function App() {
       try {
         await axios.put(`http://localhost:8080/api/admin/reject/${userId}`);
         setPendingUsers(pendingUsers.filter(u => u.id !== userId));
-        
+
         Swal.fire('Reddedildi', 'Başvuru başarıyla reddedildi.', 'success');
       } catch (error) {
         console.error('Reddetme hatası:', error);
@@ -284,15 +282,15 @@ function App() {
       {currentScreen === 'login' && (
         <>
           {view === 'login' && (
-            <LoginPage 
+            <LoginPage
               onLogin={handleLoginSuccess}
-              onNavigateToRegister={() => setView('register')} 
+              onNavigateToRegister={() => setView('register')}
             />
           )}
-          
+
           {view === 'register' && (
-            <Register 
-              onNavigateToLogin={() => setView('login')} 
+            <Register
+              onNavigateToLogin={() => setView('login')}
             />
           )}
         </>
@@ -314,16 +312,16 @@ function App() {
               <div className="d-flex align-items-center gap-2">
                 {/* ONAY BEKLEYENLER BİLDİRİM ÇANI */}
                 {userRole === 'ROLE_ADMIN' && (
-                  <div 
-                    className="admin-notification-bell" 
+                  <div
+                    className="admin-notification-bell"
                     onClick={() => setShowPendingModal(true)}
                     style={{ cursor: 'pointer', position: 'relative', fontSize: '20px' }}
                     title="Onay Bekleyen Başvurular"
                   >
                     🔔
                     {pendingUsers.length > 0 && (
-                      <span 
-                        className="badge bg-danger rounded-pill" 
+                      <span
+                        className="badge bg-danger rounded-pill"
                         style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '10px' }}
                       >
                         {pendingUsers.length}
@@ -520,7 +518,7 @@ function App() {
 
                     {/* MAP */}
                     <div className="mb-5 shadow-sm rounded-4 overflow-hidden">
-                      <InteractiveMap 
+                      <InteractiveMap
                         alumniList={filteredList}
                         isAdmin={userRole === 'ROLE_ADMIN'}
                         pendingCount={pendingUsers.length}
@@ -543,7 +541,7 @@ function App() {
                         filteredList.slice(0, 6).map((alumni) => (
                           <div key={alumni.id} className="col-lg-4 col-md-6">
                             <div className="card h-100 shadow-sm border-0 position-relative hover-card">
-                            {userRole === 'ROLE_ADMIN' && (
+                              {userRole === 'ROLE_ADMIN' && (
                                 <button
                                   onClick={() => handleDelete(alumni.id)}
                                   className="btn btn-danger btn-sm position-absolute top-0 end-0 m-2 shadow-sm"

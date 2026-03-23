@@ -14,12 +14,13 @@ const resources = {
       "lang_switch": "TÜRKÇE",
       "error_msg": "Invalid username or password!",
       "admin_or_student": "admin or student",
+      "btn_register": "REGISTER",
 
-      // Tabs (NEW)
+      // Tabs
       "analysis_panel": "Analysis Dashboard",
       "alumni_feed": "Alumni Feed",
 
-      // Quick Stats Strip (NEW)
+      // Quick Stats Strip
       "global_reach": "GLOBAL REACH",
       "countries": "Countries",
       "active_opportunities": "ACTIVE OPPORTUNITIES",
@@ -27,7 +28,7 @@ const resources = {
       "alumni_network": "ALUMNI NETWORK",
       "active_members": "Active Members",
 
-      // Chatbot (NEW)
+      // Chatbot
       "bot_title": "BAU System Assistant",
       "bot_footer": "BAU Alumni Network Info System",
 
@@ -58,7 +59,7 @@ const resources = {
       "unspecified": "Unspecified",
       "delete_confirm": "Are you sure you want to delete this?",
 
-      // Feed Section (NEW)
+      // Feed Section
       "no_posts_yet": "No posts shared yet...",
       "post_type_job": "JOB",
       "post_type_event": "EVENT",
@@ -117,7 +118,7 @@ const resources = {
       welcome_travel_title: "Skip the Screen Time. Bring on the Gelato.",
       welcome_travel_desc: "Next year’s Family Adventures are designed to delight every generation.",
       welcome_travel_btn: "Explore 2026 trips",      
-      // Instagram Feed Section (NEW)
+      // Instagram Feed Section
       welcome_insta_title: "Follow @baunetworkclub on Instagram",
       
       // Footer Section
@@ -155,12 +156,13 @@ const resources = {
       "lang_switch": "ENGLISH",
       "error_msg": "Hatalı kullanıcı adı veya şifre!",
       "admin_or_student": "admin veya ogrenci",
+      "btn_register": "KAYIT OL",
 
-      // Sekmeler (YENİ)
+      // Sekmeler
       "analysis_panel": "Analiz Paneli",
       "alumni_feed": "Mezun Akışı",
 
-      // Hızlı İstatistik Şeridi (YENİ)
+      // Hızlı İstatistik Şeridi
       "global_reach": "KÜRESEL ERİŞİM",
       "countries": "Ülkede Mezun",
       "active_opportunities": "AKTİF FIRSATLAR",
@@ -168,7 +170,7 @@ const resources = {
       "alumni_network": "MEZUN AĞI",
       "active_members": "Kayıtlı Mezun",
 
-      // Chatbot (YENİ)
+      // Chatbot
       "bot_title": "BAU Sistem Asistanı",
       "bot_footer": "BAU Mezun Ağı Bilgilendirme Sistemi",
 
@@ -199,7 +201,7 @@ const resources = {
       "unspecified": "Belirtilmemiş",
       "delete_confirm": "Bunu silmek istediğine emin misin?",
 
-      // Akış Bölümü (YENİ)
+      // Akış Bölümü
       "no_posts_yet": "Henüz bir paylaşım yapılmadı...",
       "post_type_job": "İŞ İLANI",
       "post_type_event": "ETKİNLİK",
@@ -259,7 +261,7 @@ const resources = {
       welcome_travel_desc: "Gelecek yılın aile maceraları her nesli mutlu etmek için tasarlandı.",
       welcome_travel_btn: "2026 Gezilerini Keşfet",
       
-      // Instagram Feed Bölümü (YENİ)
+      // Instagram Feed Bölümü
       welcome_insta_title: "@baunetworkclub'ı Instagram'da Takip Edin",
       
       // Footer Bölümü

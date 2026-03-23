@@ -78,16 +78,16 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                             />
                         )}
 
-                        {/* Noktalar için özel katman oluşturuyoruz (zIndex: 1000 ile en üste alıyoruz) */}
+                        {/* Noktalar için özel katman oluşturuyoruz */}
                         <Pane name="city-markers" style={{ zIndex: 1000 }}>
                             {Object.keys(groupedData).map((city, index) => {
                                 const cityAlumniList = groupedData[city];
                                 
-                                // Backend'den gelen dinamik koordinatları al (O şehirdeki ilk mezunun koordinatları yeterli)
+                                // Backend'den gelen dinamik koordinatları al
                                 const lat = cityAlumniList[0].latitude;
                                 const lon = cityAlumniList[0].longitude;
 
-                                // Eğer koordinat yoksa (eski kayıtlar vs.) noktayı çizme, atla
+                                // Eğer koordinat yoksa noktayı çizme
                                 if (!lat || !lon) return null;
 
                                 const coords = [lat, lon];
@@ -122,7 +122,7 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                 </div>
             </div>
 
-            {/* Yan Panel (Sidebar) */}
+            {/* Yan Panel */}
             <Offcanvas show={showSidebar} onHide={() => setShowSidebar(false)} placement="end">
                 <Offcanvas.Header closeButton>
                     <Offcanvas.Title>📍 {selectedCity} Mezunları</Offcanvas.Title>
@@ -133,10 +133,8 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                     {/* Yan Paneldeki Mezun Kartları Listesi */}
                     {cityAlumni.map((alumni) => (
                         <div key={alumni.id} className="card mb-3 shadow-sm border-0">
-                            {/* m-0 ve text-start sınıflarını ekleyerek içeriği sola yaslıyoruz */}
                             <div className="card-body text-start"> 
                                 <div className="d-flex align-items-center mb-3">
-                                    {/* m-0 ile margin:0 auto'yu eziyoruz, fotoğraf sola geliyor. Boyutunu da biraz küçülttük. */}
                                     <div className="bg-light rounded-circle p-2 me-3 display-6 m-0" style={{width:'60px', height:'60px', fontSize:'2rem', display:'flex', alignItems:'center', justifyContent:'center', margin: '0 !important'}}>🎓</div>
                                         <div>
                                             <h6 className="mb-1 fw-bold text-start">{alumni.firstName} {alumni.lastName}</h6>

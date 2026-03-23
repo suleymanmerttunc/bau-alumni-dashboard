@@ -19,13 +19,13 @@ public interface AlumniRepository extends JpaRepository<Alumni, Long> {
     // Admin reddettiğinde haritadan silmek için
     void deleteByStudentId(String studentId);
     
-    // --- HARİTA VE LİSTE İÇİN KRİTİK FİLTRE ---
+    // --- HARİTA VE LİSTE İÇİN ÇOK ÖNEMLİ  ---
     // Sadece durumu APPROVED olanları getirir
     @Query("SELECT a FROM Alumni a WHERE a.studentId IN " +
            "(SELECT u.studentId FROM User u WHERE u.status = com.bau.alumni.model.enums.UserStatus.APPROVED)")
     List<Alumni> findAllApprovedAlumni();
     
- // Sadece onaylıları sayfalı (pagination) olarak getir
+    // Sadece onaylıları sayfalı (pagination) olarak getir (Aşşağıdaki son mezunlar)
     @Query("SELECT a FROM Alumni a WHERE a.studentId IN " +
            "(SELECT u.studentId FROM User u WHERE u.status = com.bau.alumni.model.enums.UserStatus.APPROVED)")
     Page<Alumni> findAllApprovedAlumniPaged(Pageable pageable);

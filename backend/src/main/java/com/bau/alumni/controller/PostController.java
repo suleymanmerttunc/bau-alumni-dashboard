@@ -15,7 +15,6 @@ public class PostController {
 
     private final PostRepository postRepository;
 
-    // Manuel Constructor Injection
     public PostController(PostRepository postRepository) {
         this.postRepository = postRepository;
     }

@@ -11,7 +11,7 @@ public class User {
     private Long id;
     
     @Column(unique = true, nullable = false)
-    private String studentId; // Bu değişken var ama metodu eksikti
+    private String studentId;
 
     @Column(unique = true, nullable = false)
     private String username;

@@ -13,7 +13,7 @@ public class Company {
 
     private String name;
 
-    @Enumerated(EnumType.STRING) // Enum'ı veritabanına String (örn: "STARTUP") olarak kaydeder
+    @Enumerated(EnumType.STRING)
     @Column(name = "company_size")
     private CompanySize companySize;
 
@@ -23,7 +23,7 @@ public class Company {
     // --- İLİŞKİ ---
     // Bir şirketin bir sektörü olur. (Many Companies -> One Sector)
     @ManyToOne
-    @JoinColumn(name = "sector_id", nullable = false) // Veritabanındaki FK kolon adı
+    @JoinColumn(name = "sector_id", nullable = false)
     private Sector sector;
 
     // --- CONSTRUCTORS ---

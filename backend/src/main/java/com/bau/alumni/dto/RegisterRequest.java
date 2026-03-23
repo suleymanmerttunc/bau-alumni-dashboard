@@ -4,7 +4,15 @@ public class RegisterRequest {
     private String username;
     private String password;
     private String email;
-    private String studentId; // Bağlantı anahtarı
+    private String studentId;
+    private String firstName;
+    private String lastName;
+    private String department;
+    private String city;
+    private String country;
+    private String jobTitle;
+    private Integer graduationYear;
+    private String linkedinUrl;
 
     public RegisterRequest() {
 		super();
@@ -100,12 +108,4 @@ public class RegisterRequest {
 	public void setLinkedinUrl(String linkedinUrl) {
 		this.linkedinUrl = linkedinUrl;
 	}
-	private String firstName;
-    private String lastName;
-    private String department;
-    private String city;
-    private String country;
-    private String jobTitle;
-    private Integer graduationYear;
-    private String linkedinUrl;
 }

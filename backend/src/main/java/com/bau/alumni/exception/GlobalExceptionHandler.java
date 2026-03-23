@@ -15,7 +15,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. Bizim fırlattığımız "Bulunamadı" hatalarını yakalar (404 döner)
+    // Bizim fırlattığımız Bulunamadı hatalarını yakalar -> 404 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -27,7 +27,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
-    // 2. DTO'daki @NotBlank, @NotNull gibi validasyon hatalarını yakalar (400 döner)
+    // DTO'daki @NotBlank, @NotNull gibi validasyon hatalarını yakalar -> 400 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    // 3. Beklenmeyen diğer tüm kritik hataları yakalar (500 döner)
+    // Beklenmeyen diğer tüm kritik hataları yakalar -> 500 döner
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(
@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
     
-    // Spring Boot 3'te yanlış URL'ye girildiğinde fırlatılan hatayı (404) yakalar
+    // Yanlış URL'ye girildiğinde fırlatılan hatayı -> 404 
     @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(org.springframework.web.servlet.resource.NoResourceFoundException ex, HttpServletRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(

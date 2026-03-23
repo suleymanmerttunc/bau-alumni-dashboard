@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/alumni")
-@Tag(name = "1. Mezun Yönetimi", description = "Mezunların listelenmesi (Onaylılar), eklenmesi ve silinmesi")
+@Tag(name = "1. Mezun Yönetimi", description = "Mezunların listelenmesi (Onaylı olanlar), eklenmesi ve silinmesi")
 @CrossOrigin(origins = "http://localhost:5173")
 public class AlumniController {
 

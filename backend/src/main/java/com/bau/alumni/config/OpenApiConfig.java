@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "BAU Alumni Network API",
                 version = "1.0.0",
-                description = "Mezun takip sistemi için geliştirilmiş RESTful API dokümantasyonu. Bu arayüz üzerinden tüm uç noktaları test edebilirsiniz.",
+                description = "Mezun takip sistemi için geliştirilmiş RESTful API dokümantasyonu. Bu arayüz üzerinden tüm uç noktaları test edebilirsiniz. Şimdilik Alumni kısmı ekli sadece burası güncellenecek.",
                 contact = @Contact(
                         name = "Süleyman Mert Tunç",
                         email = "mert.tunc@bau.edu.tr"

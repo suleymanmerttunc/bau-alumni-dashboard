@@ -1,7 +1,7 @@
 import api from './api';
 
 const AlumniService = {
-    // Dashboard için limiti yüksek (1000) tutuyoruz ki harita ve grafikler dolsun
+    // Dashboard için limiti şimdilik 1000 tutuyoruz
     getAllAlumni: async () => {
         const response = await api.get("/alumni?page=0&size=1000");
         return response.data;

@@ -17,13 +17,11 @@ public class SectorController {
         this.sectorService = sectorService;
     }
 
-    // GET /api/sectors -> Tüm sektörleri getirir
     @GetMapping
     public List<Sector> getAllSectors() {
         return sectorService.getAllSectors();
     }
 
-    // POST /api/sectors -> Yeni sektör ekler
     @PostMapping
     public ResponseEntity<Sector> createSector(@RequestBody Sector sector) {
         Sector savedSector = sectorService.saveSector(sector);

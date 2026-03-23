@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
     const { t } = useTranslation(); 
     
-    // Yeni alanlar eklendi: studentId, email, password
     const initialState = {
         studentId: '', email: '', password: '',
         firstName: '', lastName: '', department: '', graduationYear: '',
@@ -40,7 +39,6 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
             await AlumniService.addAlumni(newAlumni);
             onAlumniAdded();
             handleClose();
-            // Formu başlangıç durumuna döndür
             setFormData(initialState);
         } catch (error) {
             alert(t('error_save_alumni') || "Hata oluştu! Lütfen tüm alanları doldurun."); 
@@ -56,7 +54,7 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
             <Modal.Body className="bg-light">
                 <Form onSubmit={handleSubmit}>
                     
-                    {/* --- KRİTİK HESAP BİLGİLERİ (Yeni Satır) --- */}
+                    {/* --- HESAP BİLGİLERİ --- */}
                     <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">🔑 Hesap ve Kimlik Bilgileri</h6>
                     <Row className="mb-4">
                         <Col md={4}>

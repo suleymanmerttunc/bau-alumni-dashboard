@@ -7,7 +7,7 @@ const PostService = {
     
     /**
      * Tüm duyuruları (Post) backend'den çeker.
-     * Backend'de tarihe göre tersten sıralı (Desc) gelir.
+     * Backend'de tarihe göre tersten sıralı descending olarak gelir
      */
     getAllPosts: async () => {
         try {

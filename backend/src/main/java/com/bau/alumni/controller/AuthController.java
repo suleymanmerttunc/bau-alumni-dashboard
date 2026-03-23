@@ -53,15 +53,13 @@ public class AuthController {
     // ==========================
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        // 1. Kullanıcı adı kontrolü
+        // Kullanıcı adı kontrolü
         if (userRepository.existsByUsername(request.getUsername())) {
             return ResponseEntity.badRequest().body("Hata: Bu kullanıcı adı zaten alınmış!");
         }
 
-        // 2. Koordinatları Çek
         double[] coords = geocodingService.getCoordinates(request.getCity(), request.getCountry());
         
-        // VARSAYILAN İSTANBUL KALDIRILDI -> Şehir bulunamazsa hata döner
         if (coords == null) {
             return ResponseEntity.badRequest().body("Hata: Girdiğiniz şehir/ülke kombinasyonu bulunamadı. Lütfen bilgileri kontrol edin.");
         }
@@ -69,7 +67,7 @@ public class AuthController {
         double lat = coords[0];
         double lon = coords[1];
 
-        // 3. USER KAYDI
+        // USER KAYDI
         User user = new User();
         user.setStudentId(request.getStudentId());
         user.setUsername(request.getUsername());
@@ -80,7 +78,7 @@ public class AuthController {
         user.setRole("ROLE_USER");
         userRepository.save(user);
 
-        // 4. ALUMNI KAYDI
+        // ALUMNI KAYDI
         Alumni alumni = new Alumni();
         alumni.setStudentId(request.getStudentId());
         alumni.setFirstName(request.getFirstName());
