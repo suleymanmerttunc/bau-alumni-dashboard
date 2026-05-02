@@ -39,6 +39,18 @@ public class Alumni {
 
     @Column(name = "longitude")
     private Double longitude;
+    
+    @Column(name = "current_company")
+    private String currentCompany; // AI'nın Google/LinkedIn'den bulacağı şirket
+
+    @Column(name = "current_title")
+    private String currentTitle;   // AI'nın bulacağı unvan (Backend Dev vb.)
+
+    @Column(name = "ai_processed")
+    private boolean aiProcessed = false; // Bu kayıt AI tarafından tarandı mı?
+
+    @Column(name = "ai_last_update")
+    private LocalDateTime aiLastUpdate; // AI en son ne zaman güncelledi?
 
    
     // --- İLİŞKİLER ---
@@ -124,4 +136,17 @@ public class Alumni {
 
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) { this.longitude = longitude; }
+    
+    // AI Agent için gerekli yeni Getter ve Setter metodları
+    public String getCurrentCompany() { return currentCompany; }
+    public void setCurrentCompany(String currentCompany) { this.currentCompany = currentCompany; }
+
+    public String getCurrentTitle() { return currentTitle; }
+    public void setCurrentTitle(String currentTitle) { this.currentTitle = currentTitle; }
+
+    public boolean isAiProcessed() { return aiProcessed; }
+    public void setAiProcessed(boolean aiProcessed) { this.aiProcessed = aiProcessed; }
+
+    public LocalDateTime getAiLastUpdate() { return aiLastUpdate; }
+    public void setAiLastUpdate(LocalDateTime aiLastUpdate) { this.aiLastUpdate = aiLastUpdate; }
 }

@@ -27,7 +27,7 @@ public class GeocodingService {
             // 3. İsteği atıyoruz
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             
-            // 4. Gelen JSON yanıtını okuyup Enlem (lat) ve Boylam (lon) değerlerini çekiyoruz
+            // 4. Gelen JSON yanıtını okuyup Enlem ve Boylam değerlerini çekiyoruz
             ObjectMapper mapper = new ObjectMapper();
             JsonNode root = mapper.readTree(response.getBody());
             
@@ -41,6 +41,6 @@ public class GeocodingService {
             System.out.println("Koordinat bulunamadı: " + city + " - Hata: " + e.getMessage());
         }
         
-        return null; // Eğer şehir bulunamazsa veya API çökerse sistemi patlatmamak için null dönüyoruz
+        return null; // Eğer şehir bulunmazsa veya API çökerse sistemi patlatmamak için null dönüyoruz
     }
 }

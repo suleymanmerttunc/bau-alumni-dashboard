@@ -29,4 +29,7 @@ public interface AlumniRepository extends JpaRepository<Alumni, Long> {
     @Query("SELECT a FROM Alumni a WHERE a.studentId IN " +
            "(SELECT u.studentId FROM User u WHERE u.status = com.bau.alumni.model.enums.UserStatus.APPROVED)")
     Page<Alumni> findAllApprovedAlumniPaged(Pageable pageable);
+    	
+    // Sadece AI tarafından henüz işlenmemiş mezunları getir
+    List<Alumni> findByAiProcessedFalse();
 }
