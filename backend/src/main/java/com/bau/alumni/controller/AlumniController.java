@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/alumni")
-@Tag(name = "1. Mezun Yönetimi", description = "Mezunların listelenmesi (Onaylı olanlar), eklenmesi ve silinmesi")
+@Tag(name = "1. Mezun Yönetimi", description = "Mezunların listelenmesi, sisteme eklenmesi ve yönetimi")
 @CrossOrigin(origins = "http://localhost:5173")
 public class AlumniController {
 
@@ -23,33 +23,34 @@ public class AlumniController {
         this.alumniService = alumniService;
     }
 
-    @Operation(summary = "Onaylı Mezunları Listele (Sayfalı)", description = "Sadece admin onayı almış mezunları döner. Yıla göre filtreleyebilir.")
+    @Operation(summary = "Mezunları Listele (Sayfalı)", description = "Sistemdeki tüm mezunları döner. İstenirse mezuniyet yılına göre filtrelenebilir.")
     @GetMapping
     public ResponseEntity<Page<AlumniDTO>> getAlumni(
             @RequestParam(required = false) Integer year,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        // Sadece onaylıları getiren servis metodlarını çağırıyoruz
+        // Service katmanında isimleri korumuştuk, bu yüzden çağrılar değişmiyor
         if (year != null) {
             return ResponseEntity.ok(alumniService.getApprovedAlumniByYear(year, page, size));
         }
         return ResponseEntity.ok(alumniService.getAllApprovedAlumni(page, size));
     }
 
-    @Operation(summary = "Tüm Onaylı Mezunlar (Harita İçin)", description = "Haritada noktaları göstermek için tüm onaylı mezunları liste olarak döner.")
+    @Operation(summary = "Tüm Mezunlar (Harita İçin)", description = "Haritada noktaları göstermek için tüm mezun verilerini liste olarak döner.")
     @GetMapping("/all-approved")
     public ResponseEntity<List<AlumniDTO>> getAllApproved() {
         return ResponseEntity.ok(alumniService.getAllApprovedList());
     }
 
-    @Operation(summary = "Yeni Mezun Ekle", description = "Sisteme yeni bir mezun kaydı oluşturur.")
+    @Operation(summary = "Yeni Mezun Ekle", description = "Sisteme anında yayınlanacak yeni bir mezun kaydı oluşturur.")
     @PostMapping
     public ResponseEntity<AlumniDTO> createAlumni(@Valid @RequestBody AlumniCreateRequest request) {
         AlumniDTO savedAlumni = alumniService.saveAlumni(request);
         return ResponseEntity.ok(savedAlumni);
     }
 
+    @Operation(summary = "Mezun Sil", description = "ID değerine göre bir mezun kaydını sistemden siler.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAlumni(@PathVariable Long id) {
         alumniService.deleteAlumni(id);

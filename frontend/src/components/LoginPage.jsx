@@ -14,49 +14,41 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
     const { t, i18n } = useTranslation();
 
     /**
-     * Backend'e axios ile giriş isteği gönderir ve hata durumlarını yakalar. Başarılı girişte kullanıcı verisini App.jsx'e gönderir.
+     * Statik Giriş Mantığı: 
+     * Backend'deki karmaşık auth yapısını bypass ederek projenin ana fonksiyonlarına (Map/AI) 
+     * hızlı erişim sağlar.
      */
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
-        
-        try {
-            // Backend'e istek atıyoz
-            const response = await axios.post('http://localhost:8080/api/auth/login', {
-                username: username,
-                password: password
-            });
 
-            // Başarılıysa 200 döner
-            const loggedInUser = response.data;
-            console.log("Giriş Başarılı:", loggedInUser);
-            
-            // Kullanıcı verisini App.jsx'e gönderir
+        // STATİK KONTROL: Proje sunumu için belirlenen admin girişi
+        if (username === 'admin' && password === '123') {
+            const loggedInUser = {
+                username: 'admin',
+                role: 'ROLE_ADMIN',
+                firstName: 'Süleyman Mert',
+                lastName: 'Tunç'
+            };
+            console.log("Giriş Başarılı (Statik):", loggedInUser);
             onLogin(loggedInUser);
-
-        } catch (error) {
-            // Hata durumlarını yakala (401: Yanlış Şifre, 403: Onay Bekliyor)
-            if (error.response) {
-                if (error.response.status === 403) {
-                    // Hesabı onay bekliyor
-                    setError(error.response.data || 'Hesabınız onaylanmadı. Lütfen admin onayını bekleyiniz.');
-                } else if (error.response.status === 401) {
-                    // Yanlış kullanıcı adı veya şifre
-                    setError('Kullanıcı adı veya şifre hatalı!');
-                } else {
-                    // Diğer backend hataları
-                    setError('Bir hata oluştu: ' + (error.response.data || 'Bilinmeyen hata'));
-                }
-            } else {
-                // Network veya sunucu bağlantı hatası
-                setError('Sunucuya bağlanılamadı.');
+        } else {
+            // İleride tekrar DB tabanlı login'e geçmek istersen axios bloğu burada hazır bekliyor
+            /*
+            try {
+                const response = await axios.post('http://localhost:8080/api/auth/login', {
+                    username: username,
+                    password: password
+                });
+                onLogin(response.data);
+            } catch (err) {
+                setError(t('login_error_msg') || 'Giriş başarısız! Bilgilerinizi kontrol edin.');
             }
+            */
+            setError('Kullanıcı adı veya şifre hatalı! (admin / 123)');
         }
     };
 
-    /**
-     * Dil değiştirme mantığı: Mevcut dil TR ise EN, EN ise TR yapar.
-     */
     const toggleLanguage = () => {
         const nextLanguage = i18n.language === 'tr' ? 'en' : 'tr';
         i18n.changeLanguage(nextLanguage);
@@ -70,17 +62,15 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                 <div className="col-lg-6 d-flex flex-column justify-content-center align-items-center bg-white px-5 shadow-lg position-relative" style={{ zIndex: 2 }}>
                     
                     <div style={{ maxWidth: '380px', width: '100%' }}>
-                        {/* Logo ve Başlık */}
                         <div className="text-center mb-5">
                             <img src={bauLogo} alt="BAU Logo" className="mb-4" style={{ width: '100px' }} />
                             <h2 className="fw-bold text-dark mb-2">{t('login_title')}</h2>
                             <p className="text-muted small">{t('login_subtitle')}</p>
                         </div>
 
-                        {error && <div className="alert alert-danger text-center p-2 small mb-4">{error}</div>}
+                        {error && <div className="alert alert-danger text-center p-2 small mb-4" style={{borderRadius:'8px'}}>{error}</div>}
 
                         <form onSubmit={handleLogin}>
-                            {/* Kullanıcı Adı Alanı */}
                             <div className="mb-3 text-start">
                                 <label className="form-label text-muted fw-bold mb-1" style={{ fontSize: '11px' }}>
                                     {t('label_user')}
@@ -92,10 +82,10 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     style={{ borderRadius: '8px' }}
+                                    required
                                 />
                             </div>
 
-                            {/* Şifre Alanı */}
                             <div className="mb-4 text-start position-relative">
                                 <label className="form-label text-muted fw-bold mb-1" style={{ fontSize: '11px' }}>
                                     {t('label_pass')}
@@ -108,6 +98,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         style={{ borderRadius: '8px', paddingRight: '45px' }}
+                                        required
                                     />
                                     <button
                                         type="button"
@@ -120,7 +111,6 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                                 </div>
                             </div>
 
-                            {/* Giriş Yap Butonu */}
                             <button
                                 type="submit"
                                 className="btn w-100 py-2 fw-bold text-white shadow-sm border-0 mt-2 d-flex justify-content-between align-items-center px-4"
@@ -131,18 +121,15 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                             </button>
                         </form>
 
-                        {/* Form Footer - Şifremi Unuttum */}
                         <div className="form-footer d-flex justify-content-between align-items-center mt-4">
-                            {/* ŞİFREMİ UNUTTUM - SOLDA */}
                             <button
                                 className="btn btn-link text-decoration-none text-muted fw-bold p-0"
                                 style={{ fontSize: '12px', letterSpacing: '1px' }}
-                                onClick={() => alert("Şifre sıfırlama maili gönderildi.")}
+                                onClick={() => alert("Admin paneli üzerinden şifre sıfırlama talebi oluşturabilirsiniz.")}
                             >
                                 {t('forgot_pass')}
                             </button>
 
-                            {/* KAYIT OL - SAĞDA */}
                             <button
                                 className="btn btn-link text-decoration-none text-primary fw-bold p-0"
                                 style={{ fontSize: '12px', letterSpacing: '1px' }}
@@ -153,7 +140,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                         </div>
                     </div>
 
-                    {/* --- DİL DEĞİŞTİRME METNİ --- */}
+                    {/* DİL DEĞİŞTİRME */}
                     <div className="position-absolute" style={{ bottom: '30px' }}>
                         <span 
                             onClick={toggleLanguage} 
@@ -171,7 +158,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                     </div>
                 </div>
 
-                {/* SAĞ TARAF: Arka Plan Resmi */}
+                {/* SAĞ TARAF: Görsel Alanı */}
                 <div
                     className="col-lg-6 d-none d-lg-block position-relative"
                     style={{

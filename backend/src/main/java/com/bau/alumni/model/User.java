@@ -22,34 +22,24 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(name = "linkedin_url")
     private String linkedinUrl;
 
     @Enumerated(EnumType.STRING)
-    private UserStatus status = UserStatus.PENDING;
+    private UserStatus status = UserStatus.APPROVED; // Varsayılanı APPROVED yaptık
 
     private String role = "ROLE_USER";
 
     public User() {
-        super();
     }
 
-    public User(Long id, String studentId, String username, String password, String email, String linkedinUrl, UserStatus status, String role) {
-        super();
-        this.id = id;
-        this.studentId = studentId;
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.linkedinUrl = linkedinUrl;
-        this.status = status;
-        this.role = role;
-    }
-    
-    public String getStudentId() { return studentId;}
-    public void setStudentId(String studentId) { this.studentId = studentId;}
+    // --- GETTERS & SETTERS ---
     
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getStudentId() { return studentId; }
+    public void setStudentId(String studentId) { this.studentId = studentId; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }

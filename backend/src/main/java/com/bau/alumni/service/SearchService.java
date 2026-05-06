@@ -3,55 +3,56 @@ package com.bau.alumni.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class SearchService {
 
-    @Value("${serpapi.key}")
-    private String apiKey;
+    @Value("${serper.api.key}")
+    private String serperKey;
 
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String searchAlumniOnGoogle(String firstName, String lastName) {
+    public String searchLinkedIn(String firstName, String lastName) {
+        String url = "https://google.serper.dev/search";
+
         try {
-            // Sorgu: Kişinin LinkedIn profili ve iş yeri bilgilerini odak noktasına alıyoruz
-            String query = firstName + " " + lastName + " Bahçeşehir Üniversitesi (linkedin OR şirket OR iş)";
-            String url = "https://serpapi.com/search.json?q=" + query + "&api_key=" + apiKey;
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("X-API-KEY", serperKey);
 
-            String response = restTemplate.getForObject(url, String.class);
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(response);
+            // Sorguyu spesifik hale getiriyoruz: İsim + Soyisim + Okul + Bölüm + LinkedIn
+            String query = firstName + " " + lastName + " Software Engineering Bahçeşehir Üniversitesi linkedin";
             
-            StringBuilder combinedData = new StringBuilder();
+            Map<String, Object> body = new HashMap<>();
+            body.put("q", query);
+            body.put("num", 3); // Daha fazla sonuç arasından snippet toplamak için 5'e çıkardık
 
-            // 1. Özet Kutucuğu (Answer Box) kontrolü
-            JsonNode answerBox = root.path("answer_box");
-            if (!answerBox.isMissingNode()) {
-                combinedData.append("Özet: ").append(answerBox.path("snippet").asText("")).append(" | ");
-            }
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+            String response = restTemplate.postForObject(url, entity, String.class);
 
-            // 2. Bilgi Paneli (Knowledge Graph) kontrolü
-            JsonNode knowledgeGraph = root.path("knowledge_graph");
-            if (!knowledgeGraph.isMissingNode()) {
-                combinedData.append("Panel: ").append(knowledgeGraph.path("description").asText("")).append(" | ");
-            }
+            JsonNode root = objectMapper.readTree(response);
+            StringBuilder snippets = new StringBuilder();
 
-            // 3. Organik Sonuçlar (İlk 5 Sonuç)
-            JsonNode results = root.path("organic_results");
-            if (results.isArray()) {
-                for (int i = 0; i < Math.min(results.size(), 5); i++) {
-                    JsonNode node = results.get(i);
-                    combinedData.append(node.path("title").asText()).append(": ");
-                    combinedData.append(node.path("snippet").asText()).append(" | ");
+            JsonNode organicResults = root.path("organic");
+            if (organicResults.isArray()) {
+                for (int i = 0; i < Math.min(organicResults.size(), 3); i++) {
+                    snippets.append(organicResults.get(i).path("snippet").asText()).append(" ");
                 }
             }
-            
-            return combinedData.toString();
+
+            return snippets.toString();
 
         } catch (Exception e) {
-            System.err.println("Arama hatası: " + e.getMessage());
+            System.err.println("!!! SERPER HATASI: " + e.getMessage());
             return "";
         }
     }

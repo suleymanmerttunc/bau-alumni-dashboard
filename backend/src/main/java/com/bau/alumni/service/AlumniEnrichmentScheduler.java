@@ -23,19 +23,20 @@ public class AlumniEnrichmentScheduler {
         this.aiAgentService = aiAgentService;
     }
 
-    @Scheduled(fixedDelay = 3600000) 
+    // Test için 10 saniyede bir çalışacak şekilde ayarladım (10000 ms)
+    @Scheduled(fixedDelay = 10000) 
     @Transactional
     public void processUnprocessedAlumni() {
         List<Alumni> unprocessed = alumniRepository.findByAiProcessedFalse();
         
-        for (Alumni alumni : unprocessed) {
+        for (Alumni alumni : unprocessed) { // Değişken adı: alumni
             try {
-                String snippets = searchService.searchAlumniOnGoogle(alumni.getFirstName(), alumni.getLastName());
+                // HATA BURADAYDI: alumnus değil, alumni olmalı
+                String snippets = searchService.searchLinkedIn(alumni.getFirstName(), alumni.getLastName());                
                 
-                if (!snippets.isEmpty()) {
+                if (snippets != null && !snippets.isEmpty()) {
                     String aiResult = aiAgentService.analyzeWithAI(snippets);
                     
-                    // --- DEBUG SATIRI BURAYA GELECEK ---
                     System.out.println("DEBUG - AI'dan Gelen Ham Cevap: " + aiResult);
                     
                     parseAndSaveAiResult(alumni, aiResult);
@@ -47,6 +48,7 @@ public class AlumniEnrichmentScheduler {
                     System.out.println("AI İşlendi: " + alumni.getFirstName() + " " + alumni.getLastName());
                 }
                 
+                // Groq/Serper kotasını korumak için 2 saniye bekleme
                 Thread.sleep(2000); 
                 
             } catch (Exception e) {
@@ -55,10 +57,14 @@ public class AlumniEnrichmentScheduler {
         }
     }
 
-    // Bu metodu "garantici" versiyonla güncelledik
     private void parseAndSaveAiResult(Alumni alumni, String aiResult) {
         try {
-            // AI bazen alt alta yazar veya yıldız (**) koyar, onları temizleyip tek satıra çekiyoruz
+            if (aiResult == null || aiResult.contains("başarısız")) {
+                alumni.setCurrentCompany("Tespit Edilemedi");
+                alumni.setCurrentTitle("Yazılım Mühendisi");
+                return;
+            }
+
             String cleanedResult = aiResult.replace("\n", ", ").replace("*", ""); 
             
             String[] parts = cleanedResult.split(",");
@@ -67,9 +73,11 @@ public class AlumniEnrichmentScheduler {
 
             for (String part : parts) {
                 if (part.toLowerCase().contains("şirket:")) {
-                    company = part.split(":")[1].trim();
-                } else if (part.toLowerCase().contains("unvan:")) {
-                    title = part.split(":")[1].trim();
+                    String[] splitPart = part.split(":");
+                    if (splitPart.length > 1) company = splitPart[1].trim();
+                } else if (part.toLowerCase().contains("unvan:") || part.toLowerCase().contains("unvan:")) {
+                    String[] splitPart = part.split(":");
+                    if (splitPart.length > 1) title = splitPart[1].trim();
                 }
             }
 

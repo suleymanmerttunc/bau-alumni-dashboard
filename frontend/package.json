@@ -15,6 +15,7 @@
     "i18next": "^25.8.18",
     "i18next-browser-languagedetector": "^8.2.1",
     "leaflet": "^1.9.4",
+    "pdfjs-dist": "^5.7.284",
     "react": "^19.2.0",
     "react-bootstrap": "^2.10.10",
     "react-dom": "^19.2.0",

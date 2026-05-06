@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import Swal from 'sweetalert2';
 import AlumniService from './services/AlumniService';
 import PostService from './services/PostService';
+import api from './services/api';
 import { useTranslation } from 'react-i18next';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'leaflet/dist/leaflet.css';
@@ -16,7 +15,11 @@ import LoginPage from './components/LoginPage';
 import Register from './components/Register';
 import InteractiveMap from './components/InteractiveMap';
 import AddAlumniModal from './components/AddAlumniModal';
-import PendingApprovalsModal from './components/PendingApprovalsModal';
+import AlumniManagementModal from './components/AlumniManagementModal';
+import SectorDetailModal from './components/SectorDetailModal';
+import TitleWordCloud from './components/TitleWordCloud';
+import CareerOracleModal from './components/CareerOracleModal';
+import InterviewCoachModule from './components/InterviewCoachModule';
 import botData from './ai';
 import './App.css';
 
@@ -27,12 +30,16 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState('welcome');
   const [userRole, setUserRole] = useState(null);
   const [loggedInUser, setLoggedInUser] = useState(null); // Backend'den gelen kullanıcı verisi
-  const [view, setView] = useState('login'); // 'login' veya 'register'
+  const [view, setView] = useState('login');
 
   // ALUMNI DATA
   const [showModal, setShowModal] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [showSectorModal, setShowSectorModal] = useState(false);
+  const [showCareerModal, setShowCareerModal] = useState(false);
   const [alumniList, setAlumniList] = useState([]);
   const [filteredList, setFilteredList] = useState([]);
+  const [filteredAlumni, setFilteredAlumni] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState('');
   const [loading, setLoading] = useState(false);
@@ -40,7 +47,12 @@ function App() {
   // ANALYTICS
   const [yearData, setYearData] = useState([]);
   const [sectorData, setSectorData] = useState([]);
+  const [titleCloudData, setTitleCloudData] = useState([]);
   const [sectorCount, setSectorCount] = useState(0);
+  const [entrepreneurCount, setEntrepreneurCount] = useState(0);
+  const [globalAlumniRate, setGlobalAlumniRate] = useState(0);
+  const [selectedDept, setSelectedDept] = useState('All');
+  const [topEmployers, setTopEmployers] = useState([]);
   const [yearPageIndex, setYearPageIndex] = useState(0);
   const YEARS_PER_PAGE = 5;
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF', '#FF5733', '#C70039'];
@@ -50,10 +62,6 @@ function App() {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState({ title: '', content: '', authorName: '', type: 'JOB' });
 
-  // ADMIN ONAY/RED İŞLEMLERİ
-  const [showPendingModal, setShowPendingModal] = useState(false);
-  const [pendingUsers, setPendingUsers] = useState([]); // Bu liste Backend'den gelecek
-
   // CHATBOT
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState('start');
@@ -62,19 +70,27 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
 
   // DATA FETCHING İŞLEMLERİ
-  const fetchAlumniData = () => {
-    setLoading(true);
-    AlumniService.getAllAlumni()
-      .then(data => {
-        const alumniArray = data.content || [];
+  const fetchAlumniData = async () => {
+    try {
+      setLoading(true);
+      const response = await AlumniService.getAllAlumni();
+
+      const alumniArray = response.content || response.data?.content || response;
+
+      if (Array.isArray(alumniArray)) {
         const sortedData = alumniArray.sort((a, b) => b.id - a.id);
         setAlumniList(sortedData);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Veri çekme hatası:', error);
-        setLoading(false);
-      });
+        analyzeData(sortedData); // Sektör ve yıl analizini tetikler
+      } else {
+        console.error("Beklenen liste formatı gelmedi:", response);
+        setAlumniList([]);
+      }
+    } catch (error) {
+      console.error("Veri çekme hatası:", error);
+      setAlumniList([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchPosts = () => {
@@ -83,26 +99,10 @@ function App() {
       .catch(error => console.error('Post çekme hatası:', error));
   };
 
-  // BEKLEYEN KULLANICILARI BACKEND'DEN ÇEK
-  const fetchPendingUsers = async () => {
-    try {
-      const response = await axios.get('http://localhost:8080/api/admin/pending-users');
-      setPendingUsers(response.data);
-    } catch (error) {
-      console.error('Bekleyen kullanıcılar çekilemedi:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (userRole === 'ROLE_ADMIN') {
-      fetchPendingUsers();
-    }
-  }, [userRole]);
-
   // ===== HANDLERS =====
   const handleLoginSuccess = (user) => {
     setLoggedInUser(user);
-    setUserRole(user.role); // 'ROLE_ADMIN' veya 'ROLE_USER' gelir burda
+    setUserRole(user.role);
     setCurrentScreen('app');
     fetchAlumniData();
     fetchPosts();
@@ -120,7 +120,7 @@ function App() {
     setUserRole(null);
     setCurrentScreen('welcome');
     setAlumniList([]);
-    setFilteredList([]);
+    setFilteredAlumni([]);
   };
 
   const handleCreatePost = async () => {
@@ -137,62 +137,6 @@ function App() {
     }
   };
 
-  const handleDeletePost = async (id) => {
-    if (window.confirm(t('delete_confirm'))) {
-      try {
-        await PostService.deletePost(id);
-        fetchPosts();
-      } catch (error) {
-        console.error('Post silme hatası:', error);
-      }
-    }
-  };
-
-  // ADMIN ONAY/RED İŞLEMLERİ
-  const handleApprove = async (userId) => {
-    try {
-      await axios.put(`http://localhost:8080/api/admin/approve/${userId}`);
-
-      // Listeyi günceleme (onaylınanı listeden çıkar)
-      setPendingUsers(pendingUsers.filter(u => u.id !== userId));
-
-      Swal.fire({
-        title: 'Onaylandı!',
-        text: 'Kullanıcı artık sisteme giriş yapabilir.',
-        icon: 'success',
-        confirmButtonColor: '#0d6efd'
-      });
-    } catch (error) {
-      console.error('Onaylama hatası:', error);
-      Swal.fire('Hata!', 'İşlem tamamlanamadı.', 'error');
-    }
-  };
-
-  const handleReject = async (userId) => {
-    const result = await Swal.fire({
-      title: 'Emin misiniz?',
-      text: 'Bu başvuruyu reddetmek üzerine siniz!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#dc3545',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Evet, Reddet!',
-      cancelButtonText: 'İptal'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await axios.put(`http://localhost:8080/api/admin/reject/${userId}`);
-        setPendingUsers(pendingUsers.filter(u => u.id !== userId));
-
-        Swal.fire('Reddedildi', 'Başvuru başarıyla reddedildi.', 'success');
-      } catch (error) {
-        console.error('Reddetme hatası:', error);
-        Swal.fire('Hata!', 'İşlem sırasında bir sorun oluştu.', 'error');
-      }
-    }
-  };
-
   const handleDelete = async (id) => {
     if (window.confirm(t('delete_confirm'))) {
       try {
@@ -204,12 +148,40 @@ function App() {
     }
   };
 
+  const handleDeleteAlumni = async (id) => {
+    if (window.confirm(t('delete_confirm'))) {
+      try {
+        await AlumniService.deleteAlumni(id);
+        fetchAlumniData(); // Listeyi yenile
+      } catch (err) { console.error(err); }
+    }
+  };
+
   const toggleChat = () => {
     if (!isChatOpen) setCurrentStep('start');
     setIsChatOpen(!isChatOpen);
   };
 
   // ===== ANALYSIS =====
+  const analyzeTitleCloud = (data) => {
+    const counts = {};
+    data.forEach(alumni => {
+      // currentTitle yoksa jobTitle'ı kullan
+      const title = alumni.currentTitle || alumni.jobTitle;
+      if (title && title !== "Unspecified") {
+        counts[title] = (counts[title] || 0) + 1;
+      }
+    });
+
+    // WordCloud kütüphanesinin beklediği format { text: '...', value: 10 }
+    const cloudData = Object.keys(counts).map(key => ({
+      text: key,
+      value: counts[key]
+    })).sort((a, b) => b.value - a.value).slice(0, 30); // En popüler 30 unvan
+
+    setTitleCloudData(cloudData);
+  };
+
   const analyzeData = (data) => {
     const yearCounts = {};
     data.forEach(student => {
@@ -224,13 +196,66 @@ function App() {
     const uniqueSectors = new Set();
 
     data.forEach(student => {
-      const sectorName = student.sectorName || t('unspecified');
-      sectorCounts[sectorName] = (sectorCounts[sectorName] || 0) + 1;
-      if (student.sectorName) uniqueSectors.add(sectorName);
+      // SEKTÖR ANALİZİ DÜZELTMESİ:
+      // Eğer sectorName null ise, jobTitle üzerinden bir tahmin yürütelim
+      let sector = student.sectorName;
+
+      if (!sector && student.jobTitle) {
+        // Basit bir eşleme: Eğer unvanda "Engineer" veya "Developer" geçiyorsa IT yap
+        const title = student.jobTitle.toLowerCase();
+        if (title.includes('engineer') || title.includes('developer') || title.includes('software')) {
+          sector = 'Information Technology';
+        }
+      }
+
+      const finalSector = sector || t('unspecified');
+      sectorCounts[finalSector] = (sectorCounts[finalSector] || 0) + 1;
+
+      if (sector) {
+        uniqueSectors.add(sector);
+      }
     });
 
     setSectorData(Object.keys(sectorCounts).map(key => ({ name: key, value: sectorCounts[key] })));
     setSectorCount(uniqueSectors.size);
+    analyzeTitleCloud(data);
+    analyzeEcosystem(data);
+  };
+
+  const analyzeEcosystem = (data) => {
+    const keywords = ['founder', 'co-founder', 'ceo', 'owner', 'entrepreneur', 'kurucu'];
+    const founders = data.filter(alumni => {
+      const title = (alumni.currentTitle || alumni.jobTitle || '').toLowerCase();
+      return keywords.some(keyword => title.includes(keyword));
+    });
+
+    setEntrepreneurCount(founders.length);
+
+    const international = data.filter(alumni =>
+      alumni.country &&
+      alumni.country.toLowerCase() !== 'turkey' &&
+      alumni.country.toLowerCase() !== 'türkiye'
+    );
+
+    const rate = data.length > 0 ? ((international.length / data.length) * 100).toFixed(1) : '0.0';
+    setGlobalAlumniRate(rate);
+  };
+
+  const analyzeTopEmployers = (data) => {
+    const companyCounts = {};
+    data.forEach(a => {
+      const company = a.companyName || a.currentCompany;
+      if (company && company !== 'Unspecified') {
+        companyCounts[company] = (companyCounts[company] || 0) + 1;
+      }
+    });
+
+    const top5 = Object.keys(companyCounts)
+      .map(name => ({ name, count: companyCounts[name] }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    setTopEmployers(top5);
   };
 
   // ===== EFFECTS =====
@@ -242,6 +267,17 @@ function App() {
   useEffect(() => {
     let result = alumniList;
 
+    // 1. Departman Filtresi
+    if (selectedDept !== 'All') {
+      result = result.filter(a => a.department === selectedDept);
+    }
+
+    // 2. Yıl Filtresi
+    if (selectedYear) {
+      result = result.filter(a => a.graduationYear === parseInt(selectedYear));
+    }
+
+    // 3. Arama
     if (searchTerm) {
       const lowerTerm = searchTerm.toLowerCase();
       result = result.filter(alumni =>
@@ -252,13 +288,12 @@ function App() {
       );
     }
 
-    if (selectedYear) {
-      result = result.filter(alumni => alumni.graduationYear === parseInt(selectedYear));
-    }
+    setFilteredAlumni(result);
 
-    setFilteredList(result);
+    // Filtrelenmiş liste değiştikçe tüm analizleri yeniden çalıştır
     analyzeData(result);
-  }, [searchTerm, selectedYear, alumniList, t]);
+    analyzeTopEmployers(result);
+  }, [selectedDept, selectedYear, searchTerm, alumniList]);
 
   // ===== PAGINATION =====
   const handlePrevYears = () => setYearPageIndex(prev => Math.max(prev - 1, 0));
@@ -269,6 +304,8 @@ function App() {
 
   const paginatedYears = yearData.slice(yearPageIndex * YEARS_PER_PAGE, (yearPageIndex + 1) * YEARS_PER_PAGE);
   const uniqueYears = [...new Set(alumniList.map(a => a.graduationYear))].sort((a, b) => b - a);
+  const departments = ['All', ...new Set(alumniList.map(a => a.department))].filter(Boolean);
+  const allDepartments = [...new Set(alumniList.map(a => a.department))].filter(Boolean);
 
   // ===== RENDER =====
   return (
@@ -310,26 +347,6 @@ function App() {
               </span>
 
               <div className="d-flex align-items-center gap-2">
-                {/* ONAY BEKLEYENLER BİLDİRİM ÇANI */}
-                {userRole === 'ROLE_ADMIN' && (
-                  <div
-                    className="admin-notification-bell"
-                    onClick={() => setShowPendingModal(true)}
-                    style={{ cursor: 'pointer', position: 'relative', fontSize: '20px' }}
-                    title="Onay Bekleyen Başvurular"
-                  >
-                    🔔
-                    {pendingUsers.length > 0 && (
-                      <span
-                        className="badge bg-danger rounded-pill"
-                        style={{ position: 'absolute', top: '-8px', right: '-8px', fontSize: '10px' }}
-                      >
-                        {pendingUsers.length}
-                      </span>
-                    )}
-                  </div>
-                )}
-
                 <button
                   onClick={() => i18n.changeLanguage(i18n.language === 'tr' ? 'en' : 'tr')}
                   className="btn btn-dark btn-sm fw-bold border-secondary shadow-sm"
@@ -411,6 +428,13 @@ function App() {
               >
                 📱 {t('alumni_feed')}
               </button>
+              <button
+                className={`btn btn-lg px-5 fw-bold ${activeTab === 'interview' ? 'border-warning border-bottom border-4 text-warning' : 'text-muted'}`}
+                onClick={() => setActiveTab('interview')}
+                style={{ borderRadius: 0 }}
+              >
+                🤖 AI Interview Coach
+              </button>
             </div>
           </div>
 
@@ -428,9 +452,8 @@ function App() {
                     {/* SEARCH & FILTER */}
                     <div className="card shadow-sm mb-4 border-0">
                       <div className="card-body py-3">
-                        <div className="row g-3 align-items-center">
-                          <div className="col-md-1 text-center"><span className="fs-4">🔍</span></div>
-                          <div className="col-md-7">
+                        <div className="filter-section d-flex gap-3 mb-4">
+                          <div className="search-box flex-grow-1">
                             <input
                               type="text"
                               className="form-control"
@@ -439,18 +462,28 @@ function App() {
                               onChange={(e) => setSearchTerm(e.target.value)}
                             />
                           </div>
-                          <div className="col-md-4">
-                            <select
-                              className="form-select"
-                              value={selectedYear}
-                              onChange={(e) => setSelectedYear(e.target.value)}
-                            >
-                              <option value="">{t('all_years')}</option>
-                              {uniqueYears.map(year => (
-                                <option key={year} value={year}>{year}</option>
-                              ))}
-                            </select>
-                          </div>
+
+                          <select
+                            className="form-select w-auto"
+                            value={selectedDept}
+                            onChange={(e) => setSelectedDept(e.target.value)}
+                          >
+                            <option value="All">Tüm Departmanlar</option>
+                            {departments.map(dept => (
+                              <option key={dept} value={dept}>{dept}</option>
+                            ))}
+                          </select>
+
+                          <select
+                            className="form-select w-auto"
+                            value={selectedYear}
+                            onChange={(e) => setSelectedYear(e.target.value)}
+                          >
+                            <option value="">{t('all_years')}</option>
+                            {uniqueYears.map(year => (
+                              <option key={year} value={year}>{year}</option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     </div>
@@ -461,7 +494,7 @@ function App() {
                         <div className="card text-white bg-primary mb-3 shadow border-0">
                           <div className="card-body text-center">
                             <h5 className="card-title">{t('total_alumni')}</h5>
-                            <p className="card-text display-4 fw-bold">{filteredList.length}</p>
+                            <p className="card-text display-4 fw-bold">{filteredAlumni.length}</p>
                           </div>
                         </div>
                       </div>
@@ -471,6 +504,63 @@ function App() {
                             <h5 className="card-title">{t('different_sectors')}</h5>
                             <p className="card-text display-4 fw-bold">{sectorCount}</p>
                           </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="row g-3 mb-4">
+                      <div className="col-md-6">
+                        <div className="card shadow-sm border-0 rounded-4 bg-gradient-primary text-white p-4 h-100"
+                          style={{ background: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)' }}>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 className="opacity-75 fw-bold">🚀 Girişimcilik Ekosistemi</h6>
+                              <h3 className="fw-bold mb-0">{entrepreneurCount} Founder</h3>
+                              <small className="opacity-75">Kendi şirketini kuran mezunlarımız</small>
+                            </div>
+                            <div className="fs-1 opacity-25">🏢</div>
+                          </div>
+                          <div className="mt-3 progress" style={{ height: '4px', backgroundColor: 'rgba(255,255,255,0.2)' }}>
+                            <div className="progress-bar bg-white" style={{ width: `${filteredAlumni.length > 0 ? (entrepreneurCount / filteredAlumni.length) * 100 : 0}%` }}></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="col-md-6">
+                        <div className="card shadow-sm border-0 rounded-4 p-4 h-100"
+                          style={{ background: 'linear-gradient(135deg, #00cec9 0%, #81ecec 100%)', color: '#2d3436' }}>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <h6 className="opacity-75 fw-bold text-dark">🌍 Global Mobilite</h6>
+                              <h3 className="fw-bold mb-0">%{globalAlumniRate}</h3>
+                              <small className="text-muted">Yurt dışında çalışan mezun oranı</small>
+                            </div>
+                            <div className="fs-1 opacity-25">✈️</div>
+                          </div>
+                          <div className="mt-3 progress" style={{ height: '4px', backgroundColor: 'rgba(0,0,0,0.1)' }}>
+                            <div className="progress-bar bg-dark" style={{ width: `${globalAlumniRate}%` }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* AI Simülatör Tetikleyici Alanı */}
+                    <div className="row mb-4 justify-content-center">
+                      <div className="col-12 px-6"> {/* col-12 tam genişlik sağlar */}
+                        <div
+                          className="ai-simulator-card d-flex align-items-center justify-content-between p-4 rounded-4 shadow-sm"
+                          onClick={() => setShowCareerModal(true)}
+                          style={{ cursor: 'pointer', background: 'linear-gradient(90deg, #1e293b 0%, #0f172a 100%)', border: '1px solid #38bdf8' }}
+                        >
+                          <div className="d-flex align-items-center">
+                            <div className="ai-icon-circle me-3">🔮</div>
+                            <div>
+                              <h5 className="text-white fw-bold mb-1">AI Kariyer Simülatörü</h5>
+                              <p className="text-info small mb-0 opacity-75">869 mezun verisiyle geleceğini modelle.</p>
+                            </div>
+                          </div>
+                          <button className="btn btn-info rounded-pill px-4 fw-bold">
+                            🔮 AI Kariyer Simülatörünü Aç
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -502,43 +592,107 @@ function App() {
                       <div className="col-md-4">
                         <div className="card shadow-sm h-100 border-0">
                           <div className="card-header bg-white"><h5 className="mb-0">🏢 {t('sector_chart')}</h5></div>
-                          <div className="card-body" style={{ height: '350px' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                              <PieChart>
-                                <Pie data={sectorData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} fill="#8884d8" dataKey="value">
-                                  {sectorData.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                                </Pie>
-                                <Tooltip />
-                              </PieChart>
-                            </ResponsiveContainer>
+                          <div className="card-body" style={{ height: 'auto', paddingBottom: '0' }}>
+                            <div className="sector-chart-wrapper text-center">
+                              <ResponsiveContainer width="100%" height={250}>
+                                <PieChart onClick={() => setShowSectorModal(true)} style={{ cursor: 'pointer' }}>
+                                  <Pie data={sectorData} innerRadius={60} outerRadius={80} dataKey="value">
+                                    {sectorData.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                                  </Pie>
+                                  <Tooltip />
+                                </PieChart>
+                              </ResponsiveContainer>
+
+                              {/* EN ÇOK 3 SEKTÖR ÖZETİ */}
+                              <div className="mt-3 px-3">
+                                {sectorData.length > 0 && sectorData.sort((a, b) => b.value - a.value).slice(0, 3).map((s, i) => (
+                                  <div key={i} className="d-flex justify-content-between small mb-2 border-bottom pb-1">
+                                    <span className="fw-bold text-secondary">
+                                      <span style={{ color: COLORS[i % COLORS.length], marginRight: '5px' }}>●</span> {s.name}
+                                    </span>
+                                    <span className="badge bg-light text-dark border">{s.value} {t('alumni_count')}</span>
+                                  </div>
+                                ))}
+                                <button
+                                  className="btn btn-link btn-sm text-primary fw-bold mt-2 p-0"
+                                  onClick={() => setShowSectorModal(true)}
+                                >
+                                  Tüm Detayları Gör →
+                                </button>
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
 
+                    {/* UNVAN BULUTU */}
+                    <div className="mb-5">
+                      <TitleWordCloud data={titleCloudData} />
+                    </div>
+
                     {/* MAP */}
                     <div className="mb-5 shadow-sm rounded-4 overflow-hidden">
                       <InteractiveMap
-                        alumniList={filteredList}
+                        alumniList={filteredAlumni}
                         isAdmin={userRole === 'ROLE_ADMIN'}
-                        pendingCount={pendingUsers.length}
-                        onNotificationClick={() => setShowPendingModal(true)}
                       />
+                    </div>
+
+                    {/* EMPLOYER INSIGHTS */}
+                    <div className="mb-5">
+                      <div className="card shadow-sm border-0 rounded-4 h-100 bg-white">
+                        <div className="card-body p-4 text-start">
+                          <div className="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
+                            <div>
+                              <h5 className="fw-bold mb-1">🏢 En Çok İstihdam Sağlayanlar</h5>
+                              <p className="text-muted small">Filtrelenmiş veriye göre şirket tercihleri</p>
+                            </div>
+                          </div>
+
+                          <div className="employer-list">
+                            {topEmployers.length > 0 ? topEmployers.map((emp, index) => (
+                              <div key={index} className="d-flex align-items-center mb-3 p-2 rounded-3" style={{ backgroundColor: '#f8f9fa' }}>
+                                <div className="me-3 d-flex align-items-center justify-content-center fw-bold"
+                                  style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: index === 0 ? '#ffd70033' : '#ffffff', color: index === 0 ? '#b8860b' : '#6c757d', fontSize: '14px' }}>
+                                  #{index + 1}
+                                </div>
+                                <div className="flex-grow-1">
+                                  <h6 className="mb-1 fw-bold" style={{ fontSize: '0.95rem' }}>{emp.name}</h6>
+                                  <div className="progress" style={{ height: '6px' }}>
+                                    <div
+                                      className="progress-bar bg-primary opacity-75"
+                                      style={{ width: `${((emp.count) / (topEmployers[0]?.count || 1)) * 100}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                                <div className="ms-3 text-end">
+                                  <span className="badge bg-primary rounded-pill">{emp.count} Mezun</span>
+                                </div>
+                              </div>
+                            )) : (
+                              <div className="text-center py-4">
+                                <span className="text-muted small">Bu departman için yeterli veri yok.</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     {/* ALUMNI CARDS */}
                     <h4 className="mb-3 border-bottom pb-2 d-flex justify-content-between align-items-end">
                       <span>{t('recent_alumni')}</span>
                       <span className="text-muted small">
-                        {filteredList.length > 6
-                          ? t('showing_last_x_of_y', { last: 6, total: filteredList.length })
-                          : t('total_x_records', { count: filteredList.length })}
+                        {filteredAlumni.length > 6
+                          ? t('showing_last_x_of_y', { last: 6, total: filteredAlumni.length })
+                          : t('total_x_records', { count: filteredAlumni.length })}
                       </span>
                     </h4>
 
                     <div className="row g-4">
-                      {filteredList.length > 0 ? (
-                        filteredList.slice(0, 6).map((alumni) => (
+                      {filteredAlumni.length > 0 ? (
+                        filteredAlumni.slice(0, 6).map((alumni) => (
                           <div key={alumni.id} className="col-lg-4 col-md-6">
                             <div className="card h-100 shadow-sm border-0 position-relative hover-card">
                               {userRole === 'ROLE_ADMIN' && (
@@ -600,6 +754,13 @@ function App() {
                         </div>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* INTERVIEW TAB */}
+                {activeTab === 'interview' && (
+                  <div className="animate__animated animate__fadeIn">
+                    <InterviewCoachModule userRole={userRole} />
                   </div>
                 )}
 
@@ -744,6 +905,14 @@ function App() {
             )}
           </div>
 
+          {/* SECTOR DETAIL MODAL */}
+          <SectorDetailModal
+            show={showSectorModal}
+            onHide={() => setShowSectorModal(false)}
+            data={sectorData}
+            colors={COLORS}
+          />
+
           {/* CHATBOT */}
           <div className="chatbot-wrapper" style={{ position: 'fixed', bottom: '25px', right: '25px', zIndex: 2000 }}>
             <button
@@ -814,18 +983,24 @@ function App() {
             onAlumniAdded={fetchAlumniData}
           />
 
-          {/* PENDING APPROVALS MODAL */}
-          <PendingApprovalsModal
-            show={showPendingModal}
-            onHide={() => setShowPendingModal(false)}
-            pendingUsers={pendingUsers}
-            onApprove={handleApprove}
-            onReject={handleReject}
+          <AlumniManagementModal
+            show={showAdminModal}
+            onHide={() => setShowAdminModal(false)}
+            alumniList={alumniList}
+            onDelete={handleDeleteAlumni}
           />
+
+          <CareerOracleModal
+            show={showCareerModal}
+            onHide={() => setShowCareerModal(false)}
+            departments={allDepartments}
+            topEmployers={topEmployers}
+            titleCloudData={titleCloudData}
+          />
+
         </>
       )}
     </div>
   );
 }
-
 export default App;

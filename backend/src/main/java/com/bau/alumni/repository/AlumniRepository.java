@@ -4,32 +4,31 @@ import com.bau.alumni.model.Alumni;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query; // EKSİK 1: Bunu eklemelisin
 import org.springframework.stereotype.Repository;
-import java.util.List; // EKSİK 2: Bunu eklemelisin
+import java.util.List;
 
 @Repository
 public interface AlumniRepository extends JpaRepository<Alumni, Long> {
     
-    // Filtreleme metodların (APPROVED filtresini bunlara da eklememiz gerekecek ileride)
+    // Filtreleme metodları (Artık herkesi kapsıyor)
     Page<Alumni> findByGraduationYear(Integer year, Pageable pageable);
     Page<Alumni> findByDepartment(String department, Pageable pageable);
     Page<Alumni> findByCountry(String country, Pageable pageable);
     
-    // Admin reddettiğinde haritadan silmek için
+    // Silme işlemi
     void deleteByStudentId(String studentId);
     
-    // --- HARİTA VE LİSTE İÇİN ÇOK ÖNEMLİ  ---
-    // Sadece durumu APPROVED olanları getirir
-    @Query("SELECT a FROM Alumni a WHERE a.studentId IN " +
-           "(SELECT u.studentId FROM User u WHERE u.status = com.bau.alumni.model.enums.UserStatus.APPROVED)")
-    List<Alumni> findAllApprovedAlumni();
+    // Harita ve Genel Liste için: Artık direkt findAll() kullanılabilir ama 
+    // özel bir isimle çağırmak istersen bu kalabilir:
+    default List<Alumni> findAllApprovedAlumni() {
+        return findAll();
+    }
     
-    // Sadece onaylıları sayfalı (pagination) olarak getir (Aşşağıdaki son mezunlar)
-    @Query("SELECT a FROM Alumni a WHERE a.studentId IN " +
-           "(SELECT u.studentId FROM User u WHERE u.status = com.bau.alumni.model.enums.UserStatus.APPROVED)")
-    Page<Alumni> findAllApprovedAlumniPaged(Pageable pageable);
+    // Son mezunlar listesi (Pagination ile): Direkt Spring Data JPA'nın gücünü kullanıyoruz
+    default Page<Alumni> findAllApprovedAlumniPaged(Pageable pageable) {
+        return findAll(pageable);
+    }
     	
-    // Sadece AI tarafından henüz işlenmemiş mezunları getir
+    // AI Agent'ın işleyeceği kişileri seçmek için (Buna dokunmuyoruz, işi bitenleri ayırmak şart)
     List<Alumni> findByAiProcessedFalse();
 }

@@ -7,14 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.bau.alumni.dto.AlumniCreateRequest;
 import com.bau.alumni.dto.AlumniDTO;
-import com.bau.alumni.exception.ResourceNotFoundException;
 import com.bau.alumni.model.Alumni;
-import com.bau.alumni.model.Company;
-import com.bau.alumni.model.User;
-import com.bau.alumni.model.enums.UserStatus;
 import com.bau.alumni.repository.AlumniRepository;
-import com.bau.alumni.repository.CompanyRepository;
-import com.bau.alumni.repository.UserRepository;
 import com.bau.alumni.service.AlumniService;
 import com.bau.alumni.service.GeocodingService;
 
@@ -27,45 +21,37 @@ import java.util.stream.Collectors;
 public class AlumniServiceImpl implements AlumniService {
 
     private final AlumniRepository alumniRepository;
-    private final CompanyRepository companyRepository;
     private final GeocodingService geocodingService;
-    private final UserRepository userRepository;
 
-    public AlumniServiceImpl(AlumniRepository alumniRepository, CompanyRepository companyRepository, GeocodingService geocodingService, UserRepository userRepository) {
+    public AlumniServiceImpl(AlumniRepository alumniRepository, GeocodingService geocodingService) {
         this.alumniRepository = alumniRepository;
-        this.companyRepository = companyRepository;
         this.geocodingService = geocodingService;
-        this.userRepository = userRepository;
     }
 
     @Override
     public Page<AlumniDTO> getAllAlumni(int page, int size) {
-        return getAllApprovedAlumni(page, size);
+        Pageable pageable = PageRequest.of(page, size);
+        return alumniRepository.findAll(pageable).map(this::convertToDTO);
     }
 
-    // ONAYLI MEZUNLAR (SAYFALI): Harita altındaki kartlar için
     @Override
     public Page<AlumniDTO> getAllApprovedAlumni(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Alumni> alumniPage = alumniRepository.findAllApprovedAlumniPaged(pageable);
-        return alumniPage.map(this::convertToDTO);
+        // Artık onay mekanizması olmadığı için doğrudan tüm listeye yönlendiriyoruz
+        return getAllAlumni(page, size);
     }
 
-    // HARİTA NOKTALARI: Tüm onaylıları liste olarak döner
     @Override
     public List<AlumniDTO> getAllApprovedList() {
-        return alumniRepository.findAllApprovedAlumni()
+        return alumniRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // YILA GÖRE FİLTRE: Onaylıları yıla göre süzer
     @Override
     public Page<AlumniDTO> getApprovedAlumniByYear(Integer year, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Alumni> alumniPage = alumniRepository.findByGraduationYear(year, pageable);
-        return alumniPage.map(this::convertToDTO);
+        return alumniRepository.findByGraduationYear(year, pageable).map(this::convertToDTO);
     }
     
     @Override
@@ -76,22 +62,7 @@ public class AlumniServiceImpl implements AlumniService {
     @Override
     @Transactional
     public AlumniDTO saveAlumni(AlumniCreateRequest request) {
-        Company company = companyRepository.findById(request.getCompanyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Şirket bulunamadı!"));
-
-        // USER KAYDI
-        User newUser = new User();
-        newUser.setStudentId(request.getStudentId());
-        newUser.setEmail(request.getEmail());
-        newUser.setPassword(request.getPassword());
-        newUser.setLinkedinUrl(request.getLinkedinUrl());
-        newUser.setUsername(request.getFirstName().toLowerCase() + "." + request.getLastName().toLowerCase());
-        
-        newUser.setStatus(UserStatus.PENDING);
-        newUser.setRole("ROLE_USER");
-        userRepository.save(newUser);
-
-        // ALUMNI KAYDI
+        // Yeni bir Alumni nesnesi oluşturuyoruz (User tablosuyla bağ koptu)
         Alumni alumni = new Alumni();
         alumni.setStudentId(request.getStudentId());
         alumni.setFirstName(formatText(request.getFirstName()));
@@ -100,25 +71,33 @@ public class AlumniServiceImpl implements AlumniService {
         alumni.setGraduationYear(request.getGraduationYear());
         alumni.setCity(formatText(request.getCity()));
         alumni.setCountry(formatText(request.getCountry()));
-        alumni.setJobTitle(request.getJobTitle());
+        alumni.setJobTitle(request.getjobTitle());
         alumni.setLinkedinUrl(request.getLinkedinUrl());
-        alumni.setCompany(company);
 
-        // Koordinatları al
-        double[] coords = geocodingService.getCoordinates(alumni.getCity(), alumni.getCountry());
-        if (coords != null) {
-            alumni.setLatitude(coords[0]);
-            alumni.setLongitude(coords[1]);
+        // Lokasyon bilgisinden koordinatları (Lat/Lng) çekiyoruz
+        try {
+            var coords = geocodingService.getCoordinates(alumni.getCity(), alumni.getCountry());
+            if (coords != null) {
+                alumni.setLatitude(coords.get("lat"));
+                alumni.setLongitude(coords.get("lng"));
+            }
+        } catch (Exception e) {
+            System.err.println("Koordinat alınamadı, manuel kontrol gerekebilir: " + e.getMessage());
         }
 
         Alumni savedAlumni = alumniRepository.save(alumni);
         return convertToDTO(savedAlumni);
     }
+
     @Override
     public void deleteAlumni(Long id) {
         alumniRepository.deleteById(id);
     }
 
+    /**
+     * Entity'den DTO'ya dönüşüm yapar. 
+     * Frontend'in (React/Leaflet) beklediği formatı burada hazırlıyoruz.
+     */
     private AlumniDTO convertToDTO(Alumni alumni) {
         AlumniDTO dto = new AlumniDTO();
         dto.setId(alumni.getId());
@@ -130,19 +109,25 @@ public class AlumniServiceImpl implements AlumniService {
         dto.setCity(alumni.getCity());
         dto.setJobTitle(alumni.getJobTitle());
         dto.setLinkedinUrl(alumni.getLinkedinUrl());
-        
-        if (alumni.getCompany() != null) {
-            dto.setCompanyName(alumni.getCompany().getName());
-            if (alumni.getCompany().getSector() != null) {
-                dto.setSectorName(alumni.getCompany().getSector().getName());
-            }
+
+        if (alumni.getSector() != null) {
+            dto.setSectorName(alumni.getSector().getName());
+        } else {
+            dto.setSectorName("Unspecified");
         }
+
+        dto.setCompanyName(alumni.getCurrentCompany()); 
+        dto.setCurrentTitle(alumni.getCurrentTitle());
         
         dto.setLatitude(alumni.getLatitude());
         dto.setLongitude(alumni.getLongitude());
+        
         return dto;
     }
 
+    /**
+     * Veritabanı tutarlılığı için isim/şehir verilerini standart formata sokar (Örn: istanbul -> Istanbul)
+     */
     private String formatText(String text) {
         if (text == null || text.trim().isEmpty()) return text;
         String trimmed = text.trim().toLowerCase();

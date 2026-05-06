@@ -1,24 +1,20 @@
 package com.bau.alumni.controller;
 
-import com.bau.alumni.model.User;
 import com.bau.alumni.model.Alumni;
-import com.bau.alumni.model.enums.UserStatus;
-import com.bau.alumni.repository.UserRepository;
 import com.bau.alumni.repository.AlumniRepository;
 import com.bau.alumni.dto.LoginRequest;
 import com.bau.alumni.dto.RegisterRequest;
-import com.bau.alumni.service.GeocodingService; // Koordinat servisin
+import com.bau.alumni.service.GeocodingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:5173") 
 public class AuthController {
-
-    @Autowired
-    private UserRepository userRepository;
 
     @Autowired
     private AlumniRepository alumniRepository;
@@ -27,58 +23,46 @@ public class AuthController {
     private GeocodingService geocodingService;
 
     // ==========================
-    // 1. GİRİŞ YAP (LOGIN)
+    // 1. GİRİŞ YAP (STATİK LOGIN)
     // ==========================
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        User user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+        String username = loginRequest.getUsername();
+        String password = loginRequest.getPassword();
 
-        if (user == null || !user.getPassword().equals(loginRequest.getPassword())) {
-            return ResponseEntity.status(401).body("Hata: Kullanıcı adı veya şifre yanlış!");
+        // Veritabanına bakmadan direkt statik kontrol yapıyoruz
+        if ("admin".equals(username) && "123".equals(password)) {
+            return ResponseEntity.ok(Map.of(
+                "username", "admin",
+                "role", "ROLE_ADMIN",
+                "status", "APPROVED"
+            ));
         }
 
-        if (user.getStatus() == UserStatus.PENDING) {
-            return ResponseEntity.status(403).body("Hesabınız henüz onaylanmadı. Lütfen 3 iş günü bekleyiniz.");
+        if ("student".equals(username) && "123".equals(password)) {
+            return ResponseEntity.ok(Map.of(
+                "username", "student",
+                "role", "ROLE_USER",
+                "status", "APPROVED"
+            ));
         }
 
-        if (user.getStatus() == UserStatus.REJECTED) {
-            return ResponseEntity.status(403).body("Üzgünüz, başvurunuz reddedildi.");
-        }
-
-        return ResponseEntity.ok(user);
+        return ResponseEntity.status(401).body("Hata: Kullanıcı adı veya şifre yanlış!");
     }
 
     // ==========================
-    // 2. KAYIT OL (DİNAMİK ÇİFT KAYIT)
+    // 2. KAYIT OL (DİREKT HARİTAYA EKLE)
     // ==========================
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
-        // Kullanıcı adı kontrolü
-        if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.badRequest().body("Hata: Bu kullanıcı adı zaten alınmış!");
-        }
-
-        double[] coords = geocodingService.getCoordinates(request.getCity(), request.getCountry());
+        
+        // Koordinatları al
+        var coords = geocodingService.getCoordinates(request.getCity(), request.getCountry());
         
         if (coords == null) {
-            return ResponseEntity.badRequest().body("Hata: Girdiğiniz şehir/ülke kombinasyonu bulunamadı. Lütfen bilgileri kontrol edin.");
+            return ResponseEntity.badRequest().body("Hata: Şehir/ülke lokasyonu bulunamadı.");
         }
 
-        double lat = coords[0];
-        double lon = coords[1];
-
-        // USER KAYDI
-        User user = new User();
-        user.setStudentId(request.getStudentId());
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setEmail(request.getEmail());
-        user.setLinkedinUrl(request.getLinkedinUrl());
-        user.setStatus(UserStatus.PENDING);
-        user.setRole("ROLE_USER");
-        userRepository.save(user);
-
-        // ALUMNI KAYDI
         Alumni alumni = new Alumni();
         alumni.setStudentId(request.getStudentId());
         alumni.setFirstName(request.getFirstName());
@@ -89,10 +73,14 @@ public class AuthController {
         alumni.setJobTitle(request.getJobTitle());
         alumni.setGraduationYear(request.getGraduationYear());
         alumni.setLinkedinUrl(request.getLinkedinUrl());
-        alumni.setLatitude(lat);
-        alumni.setLongitude(lon);
+        alumni.setLatitude(coords.get("lat"));
+        alumni.setLongitude(coords.get("lng"));
+        
+        // Kayıt olduğunda AI süreci başlasın diye processed false bırakıyoruz
+        alumni.setAiProcessed(false);
+        
         alumniRepository.save(alumni);
 
-        return ResponseEntity.ok("Kayıt başarılı! Bilgileriniz doğrulandı ve haritaya eklendi.");
+        return ResponseEntity.ok("Kayıt başarılı! Mezun bilgileriniz haritaya eklendi ve analiz sırasına alındı.");
     }
 }

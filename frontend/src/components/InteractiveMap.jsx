@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, GeoJSON, Pane } from 'react-leaflet';
-import { Offcanvas } from 'react-bootstrap'; 
+import { Offcanvas } from 'react-bootstrap';
 import 'leaflet/dist/leaflet.css';
 
 const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick }) => {
     const [geoJsonData, setGeoJsonData] = useState(null);
-    const [selectedCity, setSelectedCity] = useState(null); 
-    const [showSidebar, setShowSidebar] = useState(false);  
-    const [cityAlumni, setCityAlumni] = useState([]);       
+    const [selectedCity, setSelectedCity] = useState(null);
+    const [showSidebar, setShowSidebar] = useState(false);
+    const [cityAlumni, setCityAlumni] = useState([]);
 
     // 1. Dünya Ülke Sınırlarını Çek (GeoJSON)
     useEffect(() => {
@@ -47,6 +47,12 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
         setShowSidebar(true);
     };
 
+    // Check if we have any valid markers to display
+    const validMarkers = Object.keys(groupedData).filter(city => {
+        const cityAlumniList = groupedData[city];
+        return cityAlumniList[0].latitude && cityAlumniList[0].longitude;
+    }).length;
+
     return (
         <>
             <div className="card shadow border-0 overflow-hidden" style={{ borderRadius: "15px" }}>
@@ -56,11 +62,12 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                         <small className="text-muted">Ülkelere tıklayarak yaklaşabilir, şehirlere tıklayarak mezunları görebilirsin.</small>
                     </div>
                 </div>
-                
+
                 <div style={{ height: "500px", width: "100%", position: "relative" }}>
-                    <MapContainer 
-                        center={[39, 35]} 
-                        zoom={3} 
+                    {validMarkers > 0 ? (
+                    <MapContainer
+                        center={[39, 35]}
+                        zoom={3}
                         style={{ height: "100%", width: "100%", background: "#f8f9fa" }}
                         minZoom={2}
                     >
@@ -71,9 +78,9 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
 
                         {/* Ülke Sınırları (GeoJSON) - Altta Kalacak */}
                         {geoJsonData && (
-                            <GeoJSON 
-                                data={geoJsonData} 
-                                style={{ color: "#333", weight: 1, fillColor: "transparent", fillOpacity: 0 }} 
+                            <GeoJSON
+                                data={geoJsonData}
+                                style={{ color: "#333", weight: 1, fillColor: "transparent", fillOpacity: 0 }}
                                 onEachFeature={onEachCountry}
                             />
                         )}
@@ -82,7 +89,7 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                         <Pane name="city-markers" style={{ zIndex: 1000 }}>
                             {Object.keys(groupedData).map((city, index) => {
                                 const cityAlumniList = groupedData[city];
-                                
+
                                 // Backend'den gelen dinamik koordinatları al
                                 const lat = cityAlumniList[0].latitude;
                                 const lon = cityAlumniList[0].longitude;
@@ -92,14 +99,14 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
 
                                 const coords = [lat, lon];
                                 const count = cityAlumniList.length;
-                                const radiusSize = 8 + (count * 3); 
+                                const radiusSize = 10 + (Math.log10(count + 1) * 15);
 
                                 return (
-                                    <CircleMarker 
+                                    <CircleMarker
                                         key={index}
                                         center={coords}
                                         radius={radiusSize}
-                                        pathOptions={{ color: '#ff7f50', fillColor: '#ff7f50', fillOpacity: 0.9 }} 
+                                        pathOptions={{ color: '#ff7f50', fillColor: '#ff7f50', fillOpacity: 0.9 }}
                                         eventHandlers={{
                                             click: (e) => {
                                                 e.originalEvent.stopPropagation();
@@ -109,9 +116,9 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                                     >
                                         <Popup>
                                             <div className="text-center">
-                                                <strong>{city}</strong><br/>
-                                                {count} Mezun<br/>
-                                                <span className="text-primary" style={{cursor:"pointer"}}>Detaylar için tıkla</span>
+                                                <strong>{city}</strong><br />
+                                                {count} Mezun<br />
+                                                <span className="text-primary" style={{ cursor: "pointer" }}>Detaylar için tıkla</span>
                                             </div>
                                         </Popup>
                                     </CircleMarker>
@@ -119,40 +126,71 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                             })}
                         </Pane>
                     </MapContainer>
+                    ) : (
+                        <div style={{ 
+                            height: "100%", 
+                            width: "100%", 
+                            display: "flex", 
+                            alignItems: "center", 
+                            justifyContent: "center",
+                            backgroundColor: "#f8f9fa",
+                            flexDirection: "column"
+                        }}>
+                            <div style={{ textAlign: "center" }}>
+                                <p style={{ fontSize: "48px", marginBottom: "10px" }}>📍</p>
+                                <p style={{ color: "#6c757d", marginBottom: "5px", fontWeight: "500" }}>Harita Verisi Yok</p>
+                                <small style={{ color: "#999" }}>Seçilen mezunların konum bilgisi bulunmamaktadır.</small>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
             {/* Yan Panel */}
-            <Offcanvas show={showSidebar} onHide={() => setShowSidebar(false)} placement="end">
-                <Offcanvas.Header closeButton>
-                    <Offcanvas.Title>📍 {selectedCity} Mezunları</Offcanvas.Title>
+            <Offcanvas show={showSidebar} onHide={() => setShowSidebar(false)} placement="end" className="shadow-lg">
+                <Offcanvas.Header closeButton className="bg-light border-bottom">
+                    <Offcanvas.Title className="fw-bold text-primary">📍 {selectedCity} Mezunları</Offcanvas.Title>
                 </Offcanvas.Header>
-                <Offcanvas.Body>
-                    <p className="text-muted mb-4">Bu şehirde toplam <strong>{cityAlumni.length}</strong> mezunumuz çalışıyor.</p>
-                    
-                    {/* Yan Paneldeki Mezun Kartları Listesi */}
+                <Offcanvas.Body className="p-4">
+                    <p className="text-muted mb-4 small">
+                        Bu şehirde toplam <strong>{cityAlumni.length}</strong> mezunumuz yer alıyor.
+                        Bilgiler AI tarafından LinkedIn üzerinden güncellenmektedir.
+                    </p>
+
                     {cityAlumni.map((alumni) => (
-                        <div key={alumni.id} className="card mb-3 shadow-sm border-0">
-                            <div className="card-body text-start"> 
+                        <div key={alumni.id} className="card mb-3 shadow-sm border-0 position-relative" style={{ borderRadius: '12px', borderLeft: '5px solid #0d6efd' }}>
+                            <div className="card-body text-start">
                                 <div className="d-flex align-items-center mb-3">
-                                    <div className="bg-light rounded-circle p-2 me-3 display-6 m-0" style={{width:'60px', height:'60px', fontSize:'2rem', display:'flex', alignItems:'center', justifyContent:'center', margin: '0 !important'}}>🎓</div>
-                                        <div>
-                                            <h6 className="mb-1 fw-bold text-start">{alumni.firstName} {alumni.lastName}</h6>
-                                            <small className="text-muted d-block text-start">{alumni.jobTitle}</small>
-                                        </div>
+                                    <div className="bg-soft-primary rounded-circle me-3" style={{ width: '50px', height: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#e7f1ff' }}>
+                                        <span style={{ fontSize: '1.5rem' }}>🎓</span>
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <h6 className="mb-0 fw-bold">{alumni.firstName} {alumni.lastName}</h6>
+                                        {/* AI'dan gelen unvan varsa onu göster, yoksa manuel girileni kullan */}
+                                        <small className="text-primary fw-semibold">
+                                            {alumni.currentTitle || alumni.jobTitle}
+                                        </small>
+                                    </div>
                                 </div>
-                                
-                                {/* Şirket ve Bölüm Etiketleri */}
-                                <span className="badge bg-primary me-1">{alumni.companyName || "Şirket Bilgisi Yok"}</span>
-                                <span className="badge bg-secondary">{alumni.department}</span>
-                                
-                                {/* Mezuniyet Yılı ve LinkedIn Butonu */}
-                                <div className="d-flex justify-content-between align-items-center mt-3 border-top pt-2">
-                                    <small className="text-muted fw-bold">Mezuniyet: {alumni.graduationYear}</small>
-                                    
+
+                                {/* Şirket Bilgisi - AI'nın bulduğu şirket ismini önceliklendiriyoruz */}
+                                <div className="mb-3">
+                                    <span className="badge rounded-pill bg-dark py-2 px-3 w-100 text-truncate" title={alumni.companyName}>
+                                        🏢 {alumni.companyName || "Şirket Analiz Ediliyor..."}
+                                    </span>
+                                </div>
+
+                                <div className="d-flex flex-wrap gap-1 mb-3">
+                                    <span className="badge bg-light text-dark border">{alumni.department}</span>
+                                    <span className="badge bg-light text-dark border">🗓️ {alumni.graduationYear}</span>
+                                </div>
+
+                                <div className="d-flex justify-content-end border-top pt-3">
                                     {alumni.linkedinUrl && (
-                                        <a href={alumni.linkedinUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline-primary btn-sm" style={{fontSize: "12px", borderRadius:'20px'}}>
-                                            LinkedIn ↗
+                                        <a href={alumni.linkedinUrl} target="_blank" rel="noopener noreferrer"
+                                            className="btn btn-primary btn-sm rounded-pill px-4"
+                                            style={{ fontSize: "12px", transition: '0.3s' }}>
+                                            LinkedIn Profili ↗
                                         </a>
                                     )}
                                 </div>

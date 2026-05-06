@@ -1,26 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import AlumniService from '../services/AlumniService';
-import CompanyService from '../services/CompanyService';
 import { useTranslation } from 'react-i18next';
 
 const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
     const { t } = useTranslation(); 
     
     const initialState = {
-        studentId: '', email: '', password: '',
+        studentId: '',
         firstName: '', lastName: '', department: '', graduationYear: '',
-        jobTitle: '', country: '', city: '', companyId: '', linkedinUrl: ''
+        jobTitle: '', country: '', city: '', linkedinUrl: ''
     };
 
     const [formData, setFormData] = useState(initialState);
-    const [companies, setCompanies] = useState([]);
-
-    useEffect(() => {
-        if (show) {
-            CompanyService.getAllCompanies().then(data => setCompanies(data));
-        }
-    }, [show]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,10 +21,10 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        // Backend'deki AlumniCreateRequest DTO'su ile birebir eşleşen obje
         const newAlumni = {
             ...formData,
-            graduationYear: parseInt(formData.graduationYear),
-            companyId: parseInt(formData.companyId)
+            graduationYear: parseInt(formData.graduationYear)
         };
 
         try {
@@ -41,7 +33,7 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
             handleClose();
             setFormData(initialState);
         } catch (error) {
-            alert(t('error_save_alumni') || "Hata oluştu! Lütfen tüm alanları doldurun."); 
+            alert("Hata oluştu! Lütfen LinkedIn linki dahil tüm alanları kontrol edin."); 
             console.error(error);
         }
     };
@@ -54,10 +46,9 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
             <Modal.Body className="bg-light">
                 <Form onSubmit={handleSubmit}>
                     
-                    {/* --- HESAP BİLGİLERİ --- */}
-                    <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">🔑 Hesap ve Kimlik Bilgileri</h6>
+                    <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">🎓 Akademik ve Kimlik Bilgileri</h6>
                     <Row className="mb-4">
-                        <Col md={4}>
+                        <Col md={6}>
                             <Form.Label className="fw-bold">Öğrenci No</Form.Label>
                             <Form.Control 
                                 name="studentId" 
@@ -67,31 +58,19 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
                                 required 
                             />
                         </Col>
-                        <Col md={4}>
-                            <Form.Label className="fw-bold">E-mail</Form.Label>
+                        <Col md={6}>
+                            <Form.Label className="fw-bold">{t('linkedin_url')}</Form.Label>
                             <Form.Control 
-                                type="email"
-                                name="email" 
-                                placeholder="ad.soyad@example.com" 
+                                name="linkedinUrl" 
+                                placeholder="https://www.linkedin.com/in/..." 
                                 onChange={handleChange} 
-                                value={formData.email}
+                                value={formData.linkedinUrl}
                                 required 
                             />
-                        </Col>
-                        <Col md={4}>
-                            <Form.Label className="fw-bold">Şifre</Form.Label>
-                            <Form.Control 
-                                type="password"
-                                name="password" 
-                                placeholder="Giriş şifresi belirleyin" 
-                                onChange={handleChange} 
-                                value={formData.password}
-                                required 
-                            />
+                            <Form.Text className="text-muted">AI Analizi için LinkedIn profil linki gereklidir.</Form.Text>
                         </Col>
                     </Row>
 
-                    {/* --- KİŞİSEL BİLGİLER --- */}
                     <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">👤 Kişisel Bilgiler</h6>
                     <Row className="mb-3">
                         <Col md={6}>
@@ -116,38 +95,17 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
                     </Row>
 
                     <Row className="mb-3">
-                        <Col md={6}>
+                        <Col md={4}>
                             <Form.Label>{t('country')}</Form.Label>
                             <Form.Control name="country" placeholder="Örn: Turkey" onChange={handleChange} value={formData.country} required />
                         </Col>
-                        <Col md={6}>
+                        <Col md={4}>
                             <Form.Label>{t('city')}</Form.Label>
                             <Form.Control name="city" placeholder="Örn: Istanbul" onChange={handleChange} value={formData.city} required />
                         </Col>
-                    </Row>
-
-                    <Row className="mb-3">
-                        <Col md={6}>
+                        <Col md={4}>
                             <Form.Label>{t('job_title')}</Form.Label>
-                            <Form.Control name="jobTitle" placeholder="Örn: Backend Developer" onChange={handleChange} value={formData.jobTitle} required />
-                        </Col>
-                        <Col md={6}>
-                            <Form.Label>{t('company')}</Form.Label>
-                            <Form.Select name="companyId" onChange={handleChange} value={formData.companyId} required>
-                                <option value="">{t('select_company')}</option>
-                                {companies.map(company => (
-                                    <option key={company.id} value={company.id}>
-                                        {company.name} ({company.city})
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        </Col>
-                    </Row>
-
-                    <Row className="mb-3">
-                        <Col>
-                            <Form.Label>{t('linkedin_url')}</Form.Label>
-                            <Form.Control name="linkedinUrl" placeholder="https://www.linkedin.com/..." onChange={handleChange} value={formData.linkedinUrl} />
+                            <Form.Control name="jobTitle" placeholder="Örn: Junior Developer" onChange={handleChange} value={formData.jobTitle} required />
                         </Col>
                     </Row>
 
