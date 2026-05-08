@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Popup, GeoJSON, Pane } from 'react-leaflet';
 import { Offcanvas } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
 
 const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick }) => {
+    const { t } = useTranslation();
     const [geoJsonData, setGeoJsonData] = useState(null);
     const [selectedCity, setSelectedCity] = useState(null);
     const [showSidebar, setShowSidebar] = useState(false);
@@ -58,8 +60,8 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
             <div className="card shadow border-0 overflow-hidden" style={{ borderRadius: "15px" }}>
                 <div className="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <div>
-                        <h5 className="mb-0 fw-bold text-primary">🌍 Küresel Mezun Ağı</h5>
-                        <small className="text-muted">Ülkelere tıklayarak yaklaşabilir, şehirlere tıklayarak mezunları görebilirsin.</small>
+                        <h5 className="mb-0 fw-bold text-primary">{t('global_alumni_network')}</h5>
+                        <small className="text-muted">{t('map_instructions')}</small>
                     </div>
                 </div>
 
@@ -118,7 +120,7 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                                             <div className="text-center">
                                                 <strong>{city}</strong><br />
                                                 {count} Mezun<br />
-                                                <span className="text-primary" style={{ cursor: "pointer" }}>Detaylar için tıkla</span>
+                                                <span className="text-primary" style={{ cursor: "pointer" }}>{t('city_details_click')}</span>
                                             </div>
                                         </Popup>
                                     </CircleMarker>
@@ -138,8 +140,8 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                         }}>
                             <div style={{ textAlign: "center" }}>
                                 <p style={{ fontSize: "48px", marginBottom: "10px" }}>📍</p>
-                                <p style={{ color: "#6c757d", marginBottom: "5px", fontWeight: "500" }}>Harita Verisi Yok</p>
-                                <small style={{ color: "#999" }}>Seçilen mezunların konum bilgisi bulunmamaktadır.</small>
+                                <p style={{ color: "#6c757d", marginBottom: "5px", fontWeight: "500" }}>{t('map_no_data')}</p>
+                                <small style={{ color: "#999" }}>{t('map_no_data_desc')}</small>
                             </div>
                         </div>
                     )}

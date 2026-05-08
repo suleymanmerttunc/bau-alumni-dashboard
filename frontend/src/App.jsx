@@ -280,12 +280,19 @@ function App() {
     // 3. Arama
     if (searchTerm) {
       const lowerTerm = searchTerm.toLowerCase();
-      result = result.filter(alumni =>
-        alumni.firstName.toLowerCase().includes(lowerTerm) ||
-        alumni.lastName.toLowerCase().includes(lowerTerm) ||
-        (alumni.companyName && alumni.companyName.toLowerCase().includes(lowerTerm)) ||
-        alumni.jobTitle.toLowerCase().includes(lowerTerm)
-      );
+      result = result.filter(alumni => {
+        const firstName = alumni.firstName?.toLowerCase() || '';
+        const lastName = alumni.lastName?.toLowerCase() || '';
+        const companyName = alumni.companyName?.toLowerCase() || '';
+        const jobTitle = alumni.jobTitle?.toLowerCase() || '';
+
+        return (
+          firstName.includes(lowerTerm) ||
+          lastName.includes(lowerTerm) ||
+          companyName.includes(lowerTerm) ||
+          jobTitle.includes(lowerTerm)
+        );
+      });
     }
 
     setFilteredAlumni(result);
@@ -433,7 +440,7 @@ function App() {
                 onClick={() => setActiveTab('interview')}
                 style={{ borderRadius: 0 }}
               >
-                🤖 AI Interview Coach
+                🤖 {t('interview_tab')}
               </button>
             </div>
           </div>
@@ -468,7 +475,7 @@ function App() {
                             value={selectedDept}
                             onChange={(e) => setSelectedDept(e.target.value)}
                           >
-                            <option value="All">Tüm Departmanlar</option>
+                            <option value="All">{t('all_departments')}</option>
                             {departments.map(dept => (
                               <option key={dept} value={dept}>{dept}</option>
                             ))}
@@ -514,9 +521,9 @@ function App() {
                           style={{ background: 'linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)' }}>
                           <div className="d-flex justify-content-between align-items-center">
                             <div>
-                              <h6 className="opacity-75 fw-bold">🚀 Girişimcilik Ekosistemi</h6>
-                              <h3 className="fw-bold mb-0">{entrepreneurCount} Founder</h3>
-                              <small className="opacity-75">Kendi şirketini kuran mezunlarımız</small>
+                              <h6 className="opacity-75 fw-bold">{t('entrepreneurship_ecosystem')}</h6>
+                              <h3 className="fw-bold mb-0">{entrepreneurCount} {t('founder_label')}</h3>
+                              <small className="opacity-75">{t('entrepreneur_description')}</small>
                             </div>
                             <div className="fs-1 opacity-25">🏢</div>
                           </div>
@@ -530,9 +537,9 @@ function App() {
                           style={{ background: 'linear-gradient(135deg, #00cec9 0%, #81ecec 100%)', color: '#2d3436' }}>
                           <div className="d-flex justify-content-between align-items-center">
                             <div>
-                              <h6 className="opacity-75 fw-bold text-dark">🌍 Global Mobilite</h6>
+                              <h6 className="opacity-75 fw-bold text-dark">{t('global_mobility')}</h6>
                               <h3 className="fw-bold mb-0">%{globalAlumniRate}</h3>
-                              <small className="text-muted">Yurt dışında çalışan mezun oranı</small>
+                              <small className="text-muted">{t('global_mobility_desc')}</small>
                             </div>
                             <div className="fs-1 opacity-25">✈️</div>
                           </div>
@@ -554,12 +561,12 @@ function App() {
                           <div className="d-flex align-items-center">
                             <div className="ai-icon-circle me-3">🔮</div>
                             <div>
-                              <h5 className="text-white fw-bold mb-1">AI Kariyer Simülatörü</h5>
-                              <p className="text-info small mb-0 opacity-75">869 mezun verisiyle geleceğini modelle.</p>
+                              <h5 className="text-white fw-bold mb-1">{t('career_simulator_title')}</h5>
+                              <p className="text-info small mb-0 opacity-75">{t('career_simulator_desc', { count: alumniList.length })}</p>
                             </div>
                           </div>
                           <button className="btn btn-info rounded-pill px-4 fw-bold">
-                            🔮 AI Kariyer Simülatörünü Aç
+                            {t('career_simulator_button')}
                           </button>
                         </div>
                       </div>
@@ -617,7 +624,7 @@ function App() {
                                   className="btn btn-link btn-sm text-primary fw-bold mt-2 p-0"
                                   onClick={() => setShowSectorModal(true)}
                                 >
-                                  Tüm Detayları Gör →
+                                  {t('view_all_details')} →
                                 </button>
                               </div>
                             </div>
@@ -645,8 +652,8 @@ function App() {
                         <div className="card-body p-4 text-start">
                           <div className="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-3">
                             <div>
-                              <h5 className="fw-bold mb-1">🏢 En Çok İstihdam Sağlayanlar</h5>
-                              <p className="text-muted small">Filtrelenmiş veriye göre şirket tercihleri</p>
+                              <h5 className="fw-bold mb-1">{t('top_employers_title')}</h5>
+                              <p className="text-muted small">{t('top_employers_desc')}</p>
                             </div>
                           </div>
 
@@ -672,7 +679,7 @@ function App() {
                               </div>
                             )) : (
                               <div className="text-center py-4">
-                                <span className="text-muted small">Bu departman için yeterli veri yok.</span>
+                                <span className="text-muted small">{t('top_employers_no_data')}</span>
                               </div>
                             )}
                           </div>
@@ -754,13 +761,6 @@ function App() {
                         </div>
                       )}
                     </div>
-                  </div>
-                )}
-
-                {/* INTERVIEW TAB */}
-                {activeTab === 'interview' && (
-                  <div className="animate__animated animate__fadeIn">
-                    <InterviewCoachModule userRole={userRole} />
                   </div>
                 )}
 
@@ -898,6 +898,15 @@ function App() {
                           </div>
                         )}
                       </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* INTERVIEW COACH TAB */}
+                {activeTab === 'interview' && (
+                  <div className="content-body animate__animated animate__fadeIn">
+                    <div className="interview-card-container">
+                      <InterviewCoachModule />
                     </div>
                   </div>
                 )}

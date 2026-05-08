@@ -33,7 +33,7 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
             handleClose();
             setFormData(initialState);
         } catch (error) {
-            alert("Hata oluştu! Lütfen LinkedIn linki dahil tüm alanları kontrol edin."); 
+            alert(t('add_alumni_error')); 
             console.error(error);
         }
     };
@@ -46,13 +46,13 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
             <Modal.Body className="bg-light">
                 <Form onSubmit={handleSubmit}>
                     
-                    <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">🎓 Akademik ve Kimlik Bilgileri</h6>
+                    <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">{t('add_alumni_academic_title')}</h6>
                     <Row className="mb-4">
                         <Col md={6}>
-                            <Form.Label className="fw-bold">Öğrenci No</Form.Label>
+                            <Form.Label className="fw-bold">{t('add_alumni_student_id')}</Form.Label>
                             <Form.Control 
                                 name="studentId" 
-                                placeholder="Örn: 2019364" 
+                                placeholder={t('add_alumni_student_id_placeholder')} 
                                 onChange={handleChange} 
                                 value={formData.studentId}
                                 required 
@@ -67,11 +67,11 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
                                 value={formData.linkedinUrl}
                                 required 
                             />
-                            <Form.Text className="text-muted">AI Analizi için LinkedIn profil linki gereklidir.</Form.Text>
+                            <Form.Text className="text-muted">{t('add_alumni_linkedin_required')}</Form.Text>
                         </Col>
                     </Row>
 
-                    <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">👤 Kişisel Bilgiler</h6>
+                    <h6 className="text-primary mb-3 fw-bold border-bottom pb-2">{t('add_alumni_personal_title')}</h6>
                     <Row className="mb-3">
                         <Col md={6}>
                             <Form.Label>{t('first_name')}</Form.Label>
@@ -86,7 +86,7 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
                     <Row className="mb-3">
                         <Col md={6}>
                             <Form.Label>{t('department')}</Form.Label>
-                            <Form.Control name="department" placeholder="Örn: Software Engineering" onChange={handleChange} value={formData.department} required />
+                            <Form.Control name="department" placeholder={t('add_alumni_department_placeholder')} onChange={handleChange} value={formData.department} required />
                         </Col>
                         <Col md={6}>
                             <Form.Label>{t('graduation_year')}</Form.Label>
@@ -97,15 +97,15 @@ const AddAlumniModal = ({ show, handleClose, onAlumniAdded }) => {
                     <Row className="mb-3">
                         <Col md={4}>
                             <Form.Label>{t('country')}</Form.Label>
-                            <Form.Control name="country" placeholder="Örn: Turkey" onChange={handleChange} value={formData.country} required />
+                            <Form.Control name="country" placeholder={t('add_alumni_country_placeholder')} onChange={handleChange} value={formData.country} required />
                         </Col>
                         <Col md={4}>
                             <Form.Label>{t('city')}</Form.Label>
-                            <Form.Control name="city" placeholder="Örn: Istanbul" onChange={handleChange} value={formData.city} required />
+                            <Form.Control name="city" placeholder={t('add_alumni_city_placeholder')} onChange={handleChange} value={formData.city} required />
                         </Col>
                         <Col md={4}>
                             <Form.Label>{t('job_title')}</Form.Label>
-                            <Form.Control name="jobTitle" placeholder="Örn: Junior Developer" onChange={handleChange} value={formData.jobTitle} required />
+                            <Form.Control name="jobTitle" placeholder={t('add_alumni_company_placeholder')} onChange={handleChange} value={formData.jobTitle} required />
                         </Col>
                     </Row>
 

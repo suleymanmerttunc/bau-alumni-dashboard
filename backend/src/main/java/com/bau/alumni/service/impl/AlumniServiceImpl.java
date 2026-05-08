@@ -64,7 +64,6 @@ public class AlumniServiceImpl implements AlumniService {
     public AlumniDTO saveAlumni(AlumniCreateRequest request) {
         // Yeni bir Alumni nesnesi oluşturuyoruz (User tablosuyla bağ koptu)
         Alumni alumni = new Alumni();
-        alumni.setStudentId(request.getStudentId());
         alumni.setFirstName(formatText(request.getFirstName()));
         alumni.setLastName(formatText(request.getLastName()));
         alumni.setDepartment(request.getDepartment());
@@ -72,7 +71,6 @@ public class AlumniServiceImpl implements AlumniService {
         alumni.setCity(formatText(request.getCity()));
         alumni.setCountry(formatText(request.getCountry()));
         alumni.setJobTitle(request.getjobTitle());
-        alumni.setLinkedinUrl(request.getLinkedinUrl());
 
         // Lokasyon bilgisinden koordinatları (Lat/Lng) çekiyoruz
         try {
@@ -108,7 +106,6 @@ public class AlumniServiceImpl implements AlumniService {
         dto.setCountry(alumni.getCountry());
         dto.setCity(alumni.getCity());
         dto.setJobTitle(alumni.getJobTitle());
-        dto.setLinkedinUrl(alumni.getLinkedinUrl());
 
         if (alumni.getSector() != null) {
             dto.setSectorName(alumni.getSector().getName());

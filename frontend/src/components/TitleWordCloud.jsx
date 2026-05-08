@@ -1,10 +1,13 @@
+import { useTranslation } from 'react-i18next';
+
 const TitleWordCloud = ({ data }) => {
+  const { t } = useTranslation();
   // Kelime bulutu renk paleti
   const colors = ['#6c5ce7', '#a29bfe', '#00cec9', '#0984e3', '#fdcb6e', '#e17055', '#74b9ff', '#81ecec', '#fab1a0', '#fd79a8'];
 
   return (
     <div className="card shadow-sm border-0 rounded-4 p-4 h-100 bg-white">
-      <h5 className="fw-bold mb-4">☁️ Popüler Mezun Unvanları</h5>
+      <h5 className="fw-bold mb-4">{t('title_word_cloud_title')}</h5>
       <div className="d-flex flex-wrap justify-content-center align-items-center" style={{ minHeight: '200px', gap: '8px' }}>
         {data.length > 0 ? data.map((word, index) => {
           // Font boyutunu değerine göre ayarla (Örn: 10 ile 32 arası)
@@ -37,10 +40,10 @@ const TitleWordCloud = ({ data }) => {
               {word.text} <span style={{ fontSize: '0.7em', marginLeft: '4px' }}>({word.value})</span>
             </span>
           );
-        }) : <p className="text-muted small">Veri hesaplanıyor...</p>}
+        }) : <p className="text-muted small">{t('title_word_cloud_loading')}</p>}
       </div>
       <div className="mt-3 text-center border-top pt-2">
-        <small className="text-muted">En sık kullanılan unvanlar büyüklüklerine göre sıralanmıştır</small>
+        <small className="text-muted">{t('title_word_cloud_desc')}</small>
       </div>
     </div>
   );

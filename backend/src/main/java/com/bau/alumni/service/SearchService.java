@@ -34,7 +34,7 @@ public class SearchService {
             
             Map<String, Object> body = new HashMap<>();
             body.put("q", query);
-            body.put("num", 3); // Daha fazla sonuç arasından snippet toplamak için 5'e çıkardık
+            body.put("num", 5); // Daha fazla sonuç arasından snippet toplamak için 5'e çıkardık
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
             String response = restTemplate.postForObject(url, entity, String.class);

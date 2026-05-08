@@ -22,13 +22,22 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
         e.preventDefault();
         setError('');
 
-        // STATİK KONTROL: Proje sunumu için belirlenen admin girişi
+        // STATİK KONTROL: Proje sunumu için belirlenen admin ve öğrenci girişleri
         if (username === 'admin' && password === '123') {
             const loggedInUser = {
                 username: 'admin',
                 role: 'ROLE_ADMIN',
                 firstName: 'Süleyman Mert',
                 lastName: 'Tunç'
+            };
+            console.log("Giriş Başarılı (Statik):", loggedInUser);
+            onLogin(loggedInUser);
+        } else if (username === 'student' && password === '123') {
+            const loggedInUser = {
+                username: 'student',
+                role: 'ROLE_STUDENT',
+                firstName: 'Öğrenci',
+                lastName: 'Kullanıcı'
             };
             console.log("Giriş Başarılı (Statik):", loggedInUser);
             onLogin(loggedInUser);
@@ -45,7 +54,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
                 setError(t('login_error_msg') || 'Giriş başarısız! Bilgilerinizi kontrol edin.');
             }
             */
-            setError('Kullanıcı adı veya şifre hatalı! (admin / 123)');
+            setError('Kullanıcı adı veya şifre hatalı! (admin / 123 veya student / 123)');
         }
     };
 

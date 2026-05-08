@@ -1,7 +1,9 @@
 import { Modal, Row, Col, ListGroup, Badge } from 'react-bootstrap';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 const SectorDetailModal = ({ show, onHide, data, colors }) => {
+  const { t } = useTranslation();
   // Veriyi yüksekten düşüğe sıralayalım
   const sortedData = [...data].sort((a, b) => b.value - a.value);
   const totalAlumni = sortedData.reduce((acc, curr) => acc + curr.value, 0);
@@ -9,13 +11,13 @@ const SectorDetailModal = ({ show, onHide, data, colors }) => {
   return (
     <Modal show={show} onHide={onHide} size="xl" centered className="sector-modal-xl">
       <Modal.Header closeButton className="bg-light border-bottom">
-        <Modal.Title className="fw-bold">🏢 Detaylı Sektör Analizi</Modal.Title>
+        <Modal.Title className="fw-bold">{t('sector_detail_title')}</Modal.Title>
       </Modal.Header>
       <Modal.Body className="p-4">
         <Row className="align-items-center">
           {/* SOL: BÜYÜK PASTA GRAFİĞİ */}
           <Col md={5} className="text-center border-end">
-            <h6 className="text-muted mb-3">Genel Dağılım</h6>
+            <h6 className="text-muted mb-3">{t('sector_detail_distribution')}</h6>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie data={sortedData} innerRadius={70} outerRadius={100} dataKey="value" paddingAngle={2}>
@@ -28,13 +30,13 @@ const SectorDetailModal = ({ show, onHide, data, colors }) => {
               <div className="h4 fw-bold text-primary mb-0">
                 {totalAlumni}
               </div>
-              <small className="text-muted">Toplam Mezun</small>
+              <small className="text-muted">{t('sector_detail_total_alumni')}</small>
             </div>
           </Col>
 
           {/* SAĞ: SIRALI LİSTE */}
           <Col md={7} className="ps-4">
-            <h6 className="text-muted mb-3">Sektörel Kişi Sayıları</h6>
+            <h6 className="text-muted mb-3">{t('sector_detail_sector_counts')}</h6>
             <div style={{ maxHeight: '400px', overflowY: 'auto' }} className="pe-2">
               <ListGroup variant="flush">
                 {sortedData.map((s, i) => (
@@ -59,7 +61,7 @@ const SectorDetailModal = ({ show, onHide, data, colors }) => {
             
             {/* YÜZDELİK GÖSTERGE */}
             <div className="mt-4 pt-3 border-top">
-              <h6 className="text-muted mb-3">Yüzdelik Dağılım</h6>
+              <h6 className="text-muted mb-3">{t('sector_detail_percentage')}</h6>
               {sortedData.slice(0, 5).map((s, i) => (
                 <div key={i} className="mb-2">
                   <div className="d-flex justify-content-between align-items-center mb-1">

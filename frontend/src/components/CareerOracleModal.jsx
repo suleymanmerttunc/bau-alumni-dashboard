@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Spinner } from 'react-bootstrap';
+import { useTranslation } from 'react-i18next';
 import axios from 'axios';
 
 const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloudData }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({ dept: '', grade: '1', interest: '' });
     const [result, setResult] = useState("");
     const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
             });
             setResult(res.data);
         } catch (error) {
-            setResult("Analiz sırasında bir bağlantı hatası oluştu.");
+            setResult(t('career_oracle_error'));
         } finally {
             setLoading(false);
         }
@@ -58,29 +60,29 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
                 <div className="d-flex flex-column flex-lg-row" style={{ minHeight: '500px' }}>
                     {/* SOL PANEL: GİRİŞLER */}
                     <div className="p-5 bg-white" style={{ flex: '1' }}>
-                        <h3 className="fw-bold mb-4">Kariyer Pusulası</h3>
+                        <h3 className="fw-bold mb-4">{t('career_oracle_title')}</h3>
                         <Form.Group className="mb-3">
-                            <Form.Label className="small fw-bold text-muted">BÖLÜMÜNÜZ</Form.Label>
+                            <Form.Label className="small fw-bold text-muted">{t('career_oracle_department')}</Form.Label>
                             <Form.Select value={formData.dept} onChange={e => setFormData({ ...formData, dept: e.target.value })}>
-                                <option value="">Bölüm Seçin...</option>
+                                <option value="">{t('career_oracle_select_dept')}</option>
                                 {departments.map(d => <option key={d} value={d}>{d}</option>)}
                             </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-3">
-                            <Form.Label className="small fw-bold text-muted">SINIFINIZ</Form.Label>
+                            <Form.Label className="small fw-bold text-muted">{t('career_oracle_grade')}</Form.Label>
                             <Form.Select value={formData.grade} onChange={e => setFormData({ ...formData, grade: e.target.value })}>
-                                <option value="1">1. Sınıf</option>
-                                <option value="2">2. Sınıf</option>
-                                <option value="3">3. Sınıf</option>
-                                <option value="4">4. Sınıf</option>
+                                <option value="1">{t('career_oracle_grade_1')}</option>
+                                <option value="2">{t('career_oracle_grade_2')}</option>
+                                <option value="3">{t('career_oracle_grade_3')}</option>
+                                <option value="4">{t('career_oracle_grade_4')}</option>
                             </Form.Select>
                         </Form.Group>
 
                         <Form.Group className="mb-4">
-                            <Form.Label className="small fw-bold text-muted">HEDEF ALANINIZ</Form.Label>
+                            <Form.Label className="small fw-bold text-muted">{t('career_oracle_interest')}</Form.Label>
                             <Form.Control
-                                placeholder="Örn: Yapay Zeka, Oyun..."
+                                placeholder={t('career_oracle_interest_placeholder')}
                                 onChange={e => setFormData({ ...formData, interest: e.target.value })}
                             />
                         </Form.Group>
@@ -91,7 +93,7 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
                             onClick={handleSimulate}
                             disabled={loading || !formData.dept || !formData.interest}
                         >
-                            {loading ? <Spinner size="sm" className="me-2" /> : "Simülasyonu Başlat"}
+                            {loading ? <Spinner size="sm" className="me-2" /> : t('career_oracle_simulate_button')}
                         </Button>
                     </div>
 
@@ -102,13 +104,13 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
                                 <h4 className="placeholder col-6 bg-info mb-4"></h4>
                                 <p className="placeholder col-12 bg-secondary"></p>
                                 <p className="placeholder col-10 bg-secondary"></p>
-                                <p className="text-info mt-4 small">Mezun verileri analiz ediliyor...</p>
+                                <p className="text-info mt-4 small">{t('career_oracle_analyzing')}</p>
                             </div>
                         ) : result ? (
                             <div className="animate__animated animate__fadeIn w-100">
                                 {/* 1. KISIM: GENEL TAVSİYE */}
                                 <div className="mb-4">
-                                    <h4 className="text-info mb-3">AI Yol Haritan Hazır ✨</h4>
+                                    <h4 className="text-info mb-3">{t('career_oracle_result_title')}</h4>
                                     <p className="lead fs-6 lh-base italic opacity-90" style={{ borderLeft: '4px solid #0dcaf0', paddingLeft: '20px' }}>
                                         "{result}"
                                     </p>
@@ -126,16 +128,16 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
                                                 disabled={skillsLoading}
                                             >
                                                 {skillsLoading ? (
-                                                    <><Spinner size="sm" className="me-2" /> Yetenekler Çıkarılıyor...</>
+                                                    <><Spinner size="sm" className="me-2" /> {t('career_oracle_skills_loading')}</>
                                                 ) : (
-                                                    "🛠️ Gereken 5 Temel Yeteneği Gör"
+                                                    t('career_oracle_skills_button')
                                                 )}
                                             </button>
                                         </div>
                                     ) : (
                                         <div className="animate__animated animate__slideInUp">
                                             <h6 className="text-warning fw-bold mb-3 text-uppercase small letter-spacing-1">
-                                                Öğrenme Listesi (Skill Roadmap)
+                                                {t('career_oracle_roadmap_title')}
                                             </h6>
                                             <div className="d-flex flex-column gap-3">
                                                 {skills.map((skill, index) => (
@@ -152,7 +154,7 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
                         ) : (
                             <div className="text-center opacity-25 mt-5">
                                 <i className="bi bi-cpu display-1 mb-3"></i>
-                                <p>Bilgilerini gir ve BAU mezunlarının izinden kendi yolunu çiz.</p>
+                                <p>{t('career_oracle_empty')}</p>
                             </div>
                         )}
                     </div>

@@ -1,5 +1,4 @@
 package com.bau.alumni.dto;
-
 import java.util.List;
 
 public record InterviewQuestion(

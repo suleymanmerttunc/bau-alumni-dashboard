@@ -14,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/alumni")
 @Tag(name = "1. Mezun Yönetimi", description = "Mezunların listelenmesi, sisteme eklenmesi ve yönetimi")
+// Sadece geliştirme ortamına izin veriyoruz, tünel linklerini WebConfig'den yönetmek daha sağlıklı.
 @CrossOrigin(origins = "http://localhost:5173")
 public class AlumniController {
 
@@ -30,7 +31,6 @@ public class AlumniController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        // Service katmanında isimleri korumuştuk, bu yüzden çağrılar değişmiyor
         if (year != null) {
             return ResponseEntity.ok(alumniService.getApprovedAlumniByYear(year, page, size));
         }
@@ -53,6 +53,7 @@ public class AlumniController {
     @Operation(summary = "Mezun Sil", description = "ID değerine göre bir mezun kaydını sistemden siler.")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAlumni(@PathVariable Long id) {
+        // Long id üzerinden silme işlemi, studentId karmaşasını tamamen bitirdik.
         alumniService.deleteAlumni(id);
         return ResponseEntity.noContent().build();
     }

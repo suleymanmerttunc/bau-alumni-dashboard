@@ -64,7 +64,6 @@ public class AuthController {
         }
 
         Alumni alumni = new Alumni();
-        alumni.setStudentId(request.getStudentId());
         alumni.setFirstName(request.getFirstName());
         alumni.setLastName(request.getLastName());
         alumni.setDepartment(request.getDepartment());
@@ -72,7 +71,6 @@ public class AuthController {
         alumni.setCountry(request.getCountry());
         alumni.setJobTitle(request.getJobTitle());
         alumni.setGraduationYear(request.getGraduationYear());
-        alumni.setLinkedinUrl(request.getLinkedinUrl());
         alumni.setLatitude(coords.get("lat"));
         alumni.setLongitude(coords.get("lng"));
         

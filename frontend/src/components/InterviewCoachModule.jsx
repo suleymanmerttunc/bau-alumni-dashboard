@@ -1,396 +1,304 @@
-import { useState } from 'react';
-import * as pdfjs from 'pdfjs-dist';
-import InterviewSession from './InterviewSession';
-import InterviewResult from './InterviewResult';
-import api from '../services/api';
-import interviewService from '../services/InterviewService';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import api from '../services/api'; // Axios instance
 
-// PDF worker ayarı
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+const getScoreDetails = (score, t) => {
+    if (score < 40) return { color: '#ff4d4d', label: t('score_weak'), class: 'bg-danger' };
+    if (score >= 40 && score < 60) return { color: '#ffa502', label: t('score_develop'), class: 'text-dark', style: { backgroundColor: '#ffa502' } };
+    if (score >= 60 && score < 75) return { color: '#fed330', label: t('score_average'), class: 'text-dark', style: { backgroundColor: '#fed330' } };
+    if (score >= 75 && score < 90) return { color: '#26de81', label: t('score_good'), class: 'text-dark', style: { backgroundColor: '#26de81' } };
+    if (score >= 90) return { color: '#218c74', label: t('score_excellent'), class: 'bg-success' };
+    return { color: '#636e72', label: t('score_unknown'), class: 'bg-secondary' };
+};
 
-const InterviewCoachModule = ({ userRole }) => {
-  const [cvText, setCvText] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [jobDescription, setJobDescription] = useState('');
-  const [interviewStarted, setInterviewStarted] = useState(false);
-  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
-  const [currentQuestions, setCurrentQuestions] = useState([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [userAnswers, setUserAnswers] = useState([]);
-  const [interviewComplete, setInterviewComplete] = useState(false);
-  const [results, setResults] = useState(null);
-  const [error, setError] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
+const InterviewCoachModule = () => {
+    const { t } = useTranslation();
+    const [step, setStep] = useState('setup');
+    const [pdfFile, setPdfFile] = useState(null);
+    const [fileName, setFileName] = useState('');
+    const [jd, setJd] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [questions, setQuestions] = useState([]);
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [userAnswers, setUserAnswers] = useState([]);
+    const [currentAnswer, setCurrentAnswer] = useState('');
+    const [results, setResults] = useState(null);
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // Dosya adını kaydet
-    setFileName(file.name);
-
-    try {
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const typedarray = new Uint8Array(event.target.result);
-          const pdf = await pdfjs.getDocument(typedarray).promise;
-          let fullText = '';
-
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const textContent = await page.getTextContent();
-            const pageText = textContent.items.map(item => item.str).join(' ');
-            fullText += pageText + '\n';
-          }
-
-          console.log('📄 PDF Metni Çıkartıldı:', fullText.substring(0, 100) + '...');
-          
-          // Çıkartılan metni CV state'ine set et
-          setCvText(fullText);
-          setError(''); // Başarıyla yüklendikten sonra hatayı temizle
-        } catch (pdfErr) {
-          console.error('PDF Parse Hatası:', pdfErr);
-          setError('PDF dosyası işlenirken hata oluştu. Lütfen başka bir PDF deneyin.');
-          setFileName('');
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file && file.type === 'application/pdf') {
+            setPdfFile(file);
+            setFileName(file.name);
+            setError('');
+        } else {
+            setError(t('interview_select_pdf_error'));
         }
-      };
-      reader.readAsArrayBuffer(file);
-    } catch (err) {
-      console.error('PDF yükleme hatası:', err);
-      setError('PDF dosyası yüklenirken hata oluştu. Lütfen geçerli bir PDF dosyası seçiniz.');
-      setFileName('');
-    }
-  };
+    };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
+    const handleStartInterview = async () => {
+        if (!pdfFile || !jd.trim()) {
+            setError(t('interview_cv_and_jd_error'));
+            return;
+        }
 
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
+        const formData = new FormData();
+        formData.append('cvFile', pdfFile);
+        formData.append('jd', jd);
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+        setLoading(true);
+        setError('');
 
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type === 'application/pdf') {
-        // Sahte bir input event oluştur
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        handleFileUpload({ target: { files: dataTransfer.files } });
-      } else {
-        setError('Lütfen PDF dosyası yükleyiniz');
-      }
-    }
-  };
+        try {
+            const response = await api.post('/ai/generate-with-pdf', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
 
-  const handleStartInterview = async () => {
-    // Detaylı validasyon
-    console.log('🔍 Validasyon Kontrolleri:');
-    console.log('cvText:', cvText ? `${cvText.length} karakter` : 'BOŞ ❌');
-    console.log('jobDescription:', jobDescription ? `${jobDescription.length} karakter` : 'BOŞ ❌');
-    
-    if (!cvText.trim()) {
-      setError('❌ Lütfen önce CV"nizi PDF olarak yükleyiniz');
-      return;
-    }
-    if (!jobDescription.trim()) {
-      setError('❌ Lütfen iş tanımını yapıştırınız');
-      return;
-    }
+            if (response.data && response.data.questions) {
+                setQuestions(response.data.questions);
+                setStep('session');
+            } else {
+                throw new Error(t('interview_questions_failed'));
+            }
+        } catch (err) {
+            console.error('Hata:', err);
+            setError(t('interview_start_failed'));
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    setError('');
-    setIsLoadingQuestions(true);
+    const handleNextQuestion = () => {
+        if (!currentAnswer.trim()) return;
 
-    try {
-      // Mock service kullanarak sorular al (Backend entegrasyonuna hazır)
-      const response = await interviewService.generateQuestions(cvText, jobDescription);
+        const updatedAnswers = [...userAnswers, currentAnswer];
+        setUserAnswers(updatedAnswers);
+        setCurrentAnswer('');
 
-      if (response && response.questions) {
-        setCurrentQuestions(response.questions);
-        setUserAnswers([]);
-        setCurrentQuestionIndex(0);
-        setInterviewStarted(true);
-        setInterviewComplete(false);
-      } else {
-        setError('Sorular yüklenirken hata oluştu');
-      }
-    } catch (err) {
-      console.error('Soru yükleme hatası:', err);
-      setError('Sorular yüklenirken hata oluştu');
-    } finally {
-      setIsLoadingQuestions(false);
-    }
-  };
+        if (currentQuestionIndex < questions.length - 1) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1);
+        } else {
+            evaluateFinalInterview(updatedAnswers);
+        }
+    };
 
-  const handleAnswerSubmit = (answer) => {
-    const newAnswers = [...userAnswers, answer];
-    setUserAnswers(newAnswers);
+    const evaluateFinalInterview = async (allAnswers) => {
+        setLoading(true);
+        try {
+            const response = await api.post('/ai/evaluate-answers', {
+                questions: questions,
+                answers: allAnswers
+            });
+            setResults(response.data);
+            setStep('report');
+        } catch (err) {
+            console.error('Hata:', err);
+            setError(t('interview_evaluation_error'));
+        } finally {
+            setLoading(false);
+        }
+    };
 
-    if (currentQuestionIndex < currentQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      // Tüm soruların cevabı alındı, sonuçları getir
-      evaluateAnswers(newAnswers);
-    }
-  };
+    if (step === 'setup') {
+        return (
+            <div className="card shadow-lg border-0 rounded-4 p-5 bg-dark text-white animate__animated animate__fadeIn">
+                <div className="row">
+                    <div className="col-lg-6 border-end border-secondary pe-lg-5">
+                        <h4 className="text-warning mb-4">{t('interview_setup_title')}</h4>
 
-  const evaluateAnswers = async () => {
-    setIsLoadingQuestions(true);
-    try {
-      // Mock service kullanarak değerlendirme al (Backend entegrasyonuna hazır)
-      const response = await interviewService.evaluateAnswers(
-        cvText,
-        jobDescription,
-        currentQuestions,
-        userAnswers
-      );
+                        {error && <div className="alert alert-danger py-2 small mb-3">{error}</div>}
 
-      if (response && response.results) {
-        setResults(response.results);
-        setInterviewComplete(true);
-      } else {
-        setError('Sonuçlar yüklenirken hata oluştu');
-      }
-    } catch (err) {
-      console.error('Sonuç yükleme hatası:', err);
-      setError('Sonuçlar yüklenirken hata oluştu');
-    } finally {
-      setIsLoadingQuestions(false);
-    }
-  };
+                        <div className="mb-4">
+                            <label className="form-label fw-bold text-light">📄 {t('interview_upload_cv_label')}</label>
+                            <div className="upload-box p-4 border-2 border-dashed rounded-4 text-center bg-black bg-opacity-25"
+                                style={{ border: '2px dashed #636e72', cursor: 'pointer' }}>
+                                <input type="file" accept=".pdf" id="cvInput" hidden onChange={handleFileChange} />
+                                <label htmlFor="cvInput" className="m-0" style={{ cursor: 'pointer' }}>
+                                    <i className="bi bi-cloud-arrow-up display-6 text-warning d-block mb-2"></i>
+                                    {fileName ? (
+                                        <span className="text-success fw-bold">{fileName} seçildi! ✅</span>
+                                    ) : (
+                                        <span className="text-muted">{t('interview_select_pdf_prompt')}</span>
+                                    )}
+                                </label>
+                            </div>
+                        </div>
 
-  const handleResetInterview = () => {
-    setCvText('');
-    setFileName('');
-    setJobDescription('');
-    setInterviewStarted(false);
-    setCurrentQuestions([]);
-    setCurrentQuestionIndex(0);
-    setUserAnswers([]);
-    setInterviewComplete(false);
-    setResults(null);
-    setError('');
-  };
+                        <div className="mb-4">
+                            <label className="form-label fw-bold text-light">💼 {t('interview_job_description_label')}</label>
+                            <textarea
+                                className="form-control bg-dark text-white border-secondary shadow-none"
+                                rows="6"
+                                placeholder={t('interview_job_description_placeholder')}
+                                value={jd}
+                                onChange={(e) => setJd(e.target.value)}
+                            ></textarea>
+                        </div>
 
-  // Sonuç Ekranı
-  if (interviewComplete && results) {
-    return (
-      <InterviewResult
-        results={results}
-        questions={currentQuestions}
-        answers={userAnswers}
-        onReset={handleResetInterview}
-      />
-    );
-  }
+                        <button
+                            className="btn btn-warning btn-lg w-100 py-3 fw-bold shadow"
+                            onClick={handleStartInterview}
+                            disabled={loading}
+                        >
+                            {loading ? (
+                                <><span className="spinner-border spinner-border-sm me-2"></span>{t('interview_questions_loading')}</>
+                            ) : (
+                                t('interview_start_button')
+                            )}
+                        </button>
+                    </div>
 
-  // Mülakat Sürüyor
-  if (interviewStarted && currentQuestions.length > 0) {
-    return (
-      <InterviewSession
-        questions={currentQuestions}
-        currentQuestionIndex={currentQuestionIndex}
-        totalQuestions={currentQuestions.length}
-        onAnswerSubmit={handleAnswerSubmit}
-        isLoading={isLoadingQuestions}
-      />
-    );
-  }
-
-  // Başlangıç Formu
-  return (
-    <div className="card shadow-lg border-0 rounded-4 p-5 bg-dark text-white">
-      <div className="row">
-        {/* SOL TARAF - FORM */}
-        <div className="col-lg-6 border-end border-secondary pe-4">
-          <h4 className="text-warning mb-4">🤖 Mülakat Hazırlık Formu</h4>
-
-          {error && (
-            <div className="alert alert-danger alert-dismissible fade show" role="alert">
-              {error}
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setError('')}
-              ></button>
+                    <div className="col-lg-6 ps-lg-5 d-flex flex-column justify-content-center text-center">
+                        <div className="opacity-75 mb-4">
+                            <i className="bi bi-robot display-1 text-info"></i>
+                        </div>
+                        <h5 className="text-info fw-bold mb-3">{t('interview_how_it_works')}</h5>
+                        <p className="text-muted lh-base px-4">
+                            {t('interview_how_it_works')} {t('interview_real_time_feedback')}
+                        </p>
+                        <div className="p-4 bg-info bg-opacity-10 rounded-4 border border-info text-start mt-3 mx-4">
+                            <ul className="list-unstyled mb-0 small">
+                                <li className="mb-2">{t('interview_hr_questions')}</li>
+                                <li className="mb-2">{t('interview_technical_questions')}</li>
+                                <li>{t('interview_real_time_feedback')}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
-          )}
+        );
+    }
 
-          {/* DEMO BUTONU */}
-          <div className="mb-3">
-            <button
-              className="btn btn-outline-info btn-sm w-100"
-              onClick={() => {
-                setCvText('John Doe\nSoftware Engineer\n5 yıl deneyim\nJava, Spring Boot, React, Python\nDevOps ve CI/CD\nMicroservices\nDomain Driven Design');
-                setJobDescription('Software Engineer, herhangi bir seniorlik seviyesinde talep edilir. Tasarım ve geliştirme, müşteri gereksinimleriyle uyumlu iş uygulamaları. Sorumluluklar: Yeni uygulamalar tasarla, kod yaz, test et. Düzenlemeler: Kurumsal ve endüstri düzenlemeleri. Teknik beceriler: Java, React, Spring Boot, Python, SQL. DevOps ve CI/CD araçları. Microservices ve Domain Driven Design deneyimi.');
-                setFileName('demo-cv.pdf');
-                setError('');
-              }}
-            >
-              🎯 Demo Verilerini Yükle (Test için)
-            </button>
-          </div>
+    if (step === 'session') {
+        const currentQ = questions[currentQuestionIndex];
 
-          <div className="mb-4">
-            <label className="form-label fw-bold text-light">
-              📄 Özgeçmişinizi Yükleyin (PDF)
-            </label>
-            <div
-              className="upload-container p-4 rounded-4 text-center bg-dark bg-opacity-25 border-2 border-dashed"
-              style={{
-                borderColor: isDragging ? '#ffc107' : fileName ? '#27ae60' : '#636e72',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                backgroundColor: isDragging ? 'rgba(255, 193, 7, 0.1)' : 'rgba(0, 0, 0, 0.25)'
-              }}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <input
-                type="file"
-                accept=".pdf"
-                onChange={handleFileUpload}
-                id="cvUpload"
-                hidden
-              />
-              <label htmlFor="cvUpload" style={{ cursor: 'pointer', marginBottom: 0 }}>
-                {fileName ? (
-                  <>
-                    <i className="bi bi-check-circle display-6 text-success d-block mb-2">✅</i>
-                    <span className="text-success fw-bold">{fileName}</span>
-                    <div className="text-muted small mt-2">Başarıyla yüklendi!</div>
-                  </>
-                ) : isDragging ? (
-                  <>
-                    <i className="bi bi-cloud-check display-6 text-warning d-block mb-2" style={{ fontSize: '3rem' }}>📥</i>
-                    <span className="text-warning fw-bold d-block">Dosyayı buraya bırakınız!</span>
-                  </>
-                ) : (
-                  <>
-                    <i className="bi bi-cloud-arrow-up display-6 text-warning d-block mb-2">☁️</i>
-                    <span className="text-muted d-block">Dosyayı buraya sürükleyin</span>
-                    <span className="text-muted small">veya tıklayarak seçiniz</span>
-                  </>
-                )}
-              </label>
+        return (
+            <div className="card bg-dark text-white p-5 border-0 rounded-4 shadow-lg animate__animated animate__fadeIn">
+                <h4 className="text-warning mb-2">{t('interview_step_started')}</h4>
+                <div className="progress mb-4" style={{ height: '10px' }}>
+                    <div
+                        className="progress-bar bg-warning"
+                        style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+                    ></div>
+                </div>
+
+                <h5 className="text-info">{t('interview_question_count', { current: currentQuestionIndex + 1, total: questions.length })}</h5>
+                <p className="lead fw-bold mb-4">{currentQ.question}</p>
+
+                <textarea
+                    className="form-control bg-dark text-white border-secondary mb-4"
+                    rows="6"
+                    placeholder={t('interview_answer_placeholder')}
+                    value={currentAnswer}
+                    onChange={(e) => setCurrentAnswer(e.target.value)}
+                ></textarea>
+
+                <button
+                    className="btn btn-success w-100 py-3 fw-bold"
+                    onClick={handleNextQuestion}
+                    disabled={!currentAnswer.trim()}
+                >
+                    {currentQuestionIndex === questions.length - 1 ? t('interview_finish_button') : t('interview_next_button')}
+                </button>
             </div>
-            <small className="text-muted d-block mt-2">
-              💡 PDF formatında özgeçmişinizi yükleyin
-            </small>
+        );
+    }
 
-            {/* FALLBACK: Manuel CV Giriş */}
-            <details className="mt-3 p-3 rounded-3 bg-secondary bg-opacity-25 border border-secondary">
-              <summary className="cursor-pointer text-muted small fw-bold" style={{ cursor: 'pointer' }}>
-                📝 PDF yüklenmediyse, CV'nizi buraya yapıştırın
-              </summary>
-              <textarea
-                className="form-control form-control-sm mt-3"
-                rows="6"
-                placeholder="CV bilgilerinizi buraya yapıştırabilirsiniz..."
-                value={cvText}
-                onChange={(e) => setCvText(e.target.value)}
-                style={{ backgroundColor: '#2d3436', color: '#fff', border: '1px solid #636e72', fontSize: '12px' }}
-              ></textarea>
-            </details>
-          </div>
+    if (step === 'report' && results) {
+        const avgScore = results.questionResults
+            ? Math.round(results.questionResults.reduce((acc, curr) => acc + curr.score, 0) / results.questionResults.length)
+            : 0;
 
-          <div className="mb-4">
-            <label className="form-label fw-bold text-light">
-              💼 Başvuracağınız İşin Tanımını Yapıştırınız
-            </label>
-            <textarea
-              className="form-control form-control-lg"
-              rows="8"
-              placeholder="İş tanımını buraya yapıştırınız... (Sorumluluklar, Gereklilikler vb.)"
-              value={jobDescription}
-              onChange={(e) => setJobDescription(e.target.value)}
-              style={{ backgroundColor: '#2d3436', color: '#fff', border: '2px solid #636e72' }}
-            ></textarea>
-            <small className="text-muted">
-              💡 LinkedIn iş ilanından kopyala-yapıştır yap
-            </small>
-          </div>
+        return (
+            <div className="card bg-dark text-white p-5 border-0 rounded-4 shadow-lg animate__animated animate__fadeIn">
+                <div className="text-center mb-5">
+                    <h2 className="text-warning fw-bold">{t('interview_analysis_complete')}</h2>
+                    <div className="display-4 fw-bold text-info mt-3">{avgScore}/100</div>
+                    <p className="text-muted">{t('interview_score_summary')}</p>
+                </div>
 
-          <button
-            className="btn btn-warning btn-lg w-100 py-3 fw-bold"
-            onClick={handleStartInterview}
-            disabled={isLoadingQuestions}
-            style={{ cursor: isLoadingQuestions ? 'wait' : 'pointer', opacity: isLoadingQuestions ? 0.7 : 1 }}
-          >
-            {isLoadingQuestions ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Sorular Hazırlanıyor...
-              </>
-            ) : (
-              <>🚀 Mülakatı Başlat (7 Soru)</>
-            )}
-          </button>
+                <div className="row g-3 mb-5">
+                    <div className="col-md-4">
+                        <div className="p-3 bg-success bg-opacity-10 border border-success rounded-3 h-100">
+                            <h6 className="text-success fw-bold">✅ {t('interview_strengths')}</h6>
+                            <ul className="small mb-0">
+                                {results.overallAnalysis?.strengths?.map((s, i) => <li key={i}>{s}</li>)}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="p-3 bg-warning bg-opacity-10 border border-warning rounded-3 h-100">
+                            <h6 className="text-warning fw-bold">⚠️ {t('interview_improvements')}</h6>
+                            <ul className="small mb-0">
+                                {results.overallAnalysis?.improvements?.map((im, i) => <li key={i}>{im}</li>)}
+                            </ul>
+                        </div>
+                    </div>
+                    <div className="col-md-4">
+                        <div className="p-3 bg-info bg-opacity-10 border border-info rounded-3 h-100">
+                            <h6 className="text-info fw-bold">📌 {t('interview_next_steps')}</h6>
+                            <ul className="small mb-0">
+                                {results.overallAnalysis?.nextSteps?.map((n, i) => <li key={i}>{n}</li>)}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
 
-          <div className="mt-3 p-3 rounded-3" style={{ backgroundColor: '#636e72' }}>
-            <small className="text-light">
-              <strong>❓ Soru Yapısı:</strong> 2 HR Sorusu + 5 Teknik Soru = Toplam 7 Soru
-            </small>
-          </div>
-        </div>
+                <h5 className="mb-4 text-light border-bottom pb-2">{t('interview_feedback_title')}</h5>
+                {results.questionResults?.map((res, index) => {
+                    const scoreInfo = getScoreDetails(res.score, t);
 
-        {/* SAĞ TARAF - BİLGİLENDİRME */}
-        <div className="col-lg-6 ps-4 d-flex flex-column justify-content-center text-center">
-          <div className="opacity-50 mb-4">
-            <i className="bi bi-robot display-1 d-block mb-3" style={{ fontSize: '4rem' }}>🤖</i>
-          </div>
+                    return (
+                        <div key={index} className="mb-4 p-4 bg-black bg-opacity-25 rounded-4 border border-secondary shadow-sm">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <span className="badge bg-secondary p-2 px-3">{t('interview_question_label', { index: index + 1 })}</span>
+                                <span
+                                    className={`badge ${scoreInfo.class} fw-bold p-2 px-4 shadow-sm`}
+                                    style={scoreInfo.style || { backgroundColor: scoreInfo.color }}
+                                >
+                                    {res.score} / 100 - {scoreInfo.label}
+                                </span>
+                            </div>
 
-          <div className="mb-4">
-            <h5 className="text-info fw-bold mb-3">Bu Nedir?</h5>
-            <p className="text-muted lh-lg">
-              CV'nizi ve iş tanımını yapıştırdıktan sonra, yapay zeka tarafından özel olarak hazırlanan
-              7 soruluk bir mülakat simülasyonundan geçeceksiniz.
-            </p>
-          </div>
+                            <p className="fw-bold text-light">{questions[index]?.question}</p>
+                            <div className="progress mb-3" style={{ height: '6px', backgroundColor: '#2d3436' }}>
+                                <div
+                                    className="progress-bar rounded-pill"
+                                    style={{
+                                        width: `${res.score}%`,
+                                        backgroundColor: scoreInfo.color
+                                    }}
+                                ></div>
+                            </div>
 
-          <div className="mb-4">
-            <h5 className="text-success fw-bold mb-3">Ne Alacaksınız?</h5>
-            <ul className="text-muted text-start" style={{ listStyle: 'none', paddingLeft: 0 }}>
-              <li className="mb-2">
-                <span className="text-success me-2">✅</span>
-                Her soru için /100 puan
-              </li>
-              <li className="mb-2">
-                <span className="text-success me-2">✅</span>
-                Geliştirim önerileri
-              </li>
-              <li className="mb-2">
-                <span className="text-success me-2">✅</span>
-                Detaylı geri bildirim
-              </li>
-              <li className="mb-2">
-                <span className="text-success me-2">✅</span>
-                Genel başarı puanı
-              </li>
-            </ul>
-          </div>
+                            <div className="p-3 bg-dark rounded-3 mb-3">
+                                <small className="text-info d-block mb-1">{t('interview_your_answer')}</small>
+                                <p className="small mb-0 fst-italic">"{userAnswers[index]}"</p>
+                            </div>
+                            <div className="row">
+                                <div className="col-md-6">
+                                    <small className="text-warning fw-bold">💡 {t('interview_evaluation')}</small>
+                                    <p className="small text-muted">{res.evaluation}</p>
+                                </div>
+                                <div className="col-md-6">
+                                    <small className="text-success fw-bold">🚀 {t('interview_suggestions')}</small>
+                                    <ul className="small text-muted mb-0">
+                                        {res.suggestions?.map((s, i) => <li key={i}>{s}</li>)}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })}
 
-          <div className="p-3 rounded-3 bg-info bg-opacity-10 border border-info">
-            <small className="text-info">
-              <strong>⏱️</strong> Mülakatı bitirmek yaklaşık 10-15 dakika sürer.
-            </small>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+                <button className="btn btn-warning w-100 py-3 fw-bold mt-4" onClick={() => window.location.reload()}>
+                    {t('interview_restart_button')}
+                </button>
+            </div>
+        );
+    }
+
+    return null;
 };
 
 export default InterviewCoachModule;

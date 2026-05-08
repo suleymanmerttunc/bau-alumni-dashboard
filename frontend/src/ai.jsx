@@ -1,12 +1,14 @@
 const botData = {
   tr: {
     start: {
-      message: "Merhaba Bau'lu! BAU Mezun Sistemi ve Kampüs Yaşamı asistanına hoş geldin. Sana nasıl yardımcı olabilirim? 🎓",
+      message: "Merhaba! BAU Mezun Sistemi asistanına hoş geldin. Bu sistem; mezun haritası, mülakat koçu, kariyer simülatörü, analiz paneli ve mezun akışı özellikleriyle tasarlandı.",
       options: [
-        { text: "📅 2025-2026 Akademik Takvim", nextStep: "academic" },
-        { text: "💡 Sıkça Sorulan Sorular (SSS)", nextStep: "sss_main" },
-        { text: "🏥 Öğrenci Dekanlığı ve Hizmetler", nextStep: "dekanlik_services" },
-        { text: "🛡️ Sistem Kullanım Rehberi (Admin)", nextStep: "admin_help" }
+        { text: "🧭 Sistemi Tanıt", nextStep: "system_overview" },
+        { text: "🗺️ Mezun Haritası", nextStep: "map_info" },
+        { text: "🔮 Kariyer Simülatörü", nextStep: "career_simulator_info" },
+        { text: "🤖 Mülakat Koçu", nextStep: "interview_coach_info" },
+        { text: "🏢 Mezun Akışı", nextStep: "feed_info" },
+        { text: "🛡️ Yönetici Rehberi", nextStep: "admin_help" }
       ]
     },
     // --- AKADEMİK TAKVİM ---
@@ -31,27 +33,36 @@ const botData = {
       message: "☀️ 2025-2026 Yaz Okulu:\n- Kayıtlar: 21-24 Temmuz 2026\n- Ders Başlangıcı: 27 Temmuz 2026\n- Ders Sonu: 11 Eylül 2026",
       options: [{ text: "⬅ Geri", nextStep: "academic" }, { text: "🏠 Ana Menü", nextStep: "start" }]
     },
-    // --- SSS ---
-    sss_main: {
-      message: "Sıkça Sorulan Sorular:",
+    // --- SİSTEM BİLGİLERİ ---
+    system_overview: {
+      message: "Bu sistemde:\n- Mezun haritasında şehir ve ülke bazlı mezun dağılımını görebilirsin.\n- AI Kariyer Simülatörü sana en uygun yetkinlik yol haritasını çıkarır.\n- Mülakat Koçu gerçek zamanlı soru, cevap ve geri bildirim sunar.\n- Analiz paneli filtreleme, sektör ve mezun istatistikleri sağlar.\n- Mezun akışı ile iş ilanları, etkinlikler ve başarı hikayelerini paylaşabilirsin.",
       options: [
-        { text: "❓ Sorunlarımı Nasıl Çözerim?", nextStep: "help_center" },
-        { text: "🏆 Burs Olanakları", nextStep: "burs_options" },
-        { text: "🏢 Dekanlık Nerede?", nextStep: "dekanlik_loc" },
-        { text: "🏠 Ana Menü", nextStep: "start" }
+        { text: "⬅ Geri", nextStep: "start" }
       ]
     },
-    help_center: {
-      message: "Merak ettiğiniz her konu için BAU Öğrenci Çözüm Merkezi (help.bau.edu.tr) üzerinden talep oluşturabilir veya 444 28 64'ü arayabilirsiniz.",
-      options: [{ text: "⬅ Geri", nextStep: "sss_main" }]
+    map_info: {
+      message: "Mezun Haritası bölümünde şehirleri tıklayarak o şehirdeki mezunları görebilir, ülke sınırlarına tıklayarak haritada yakınlaşabilirsin.",
+      options: [
+        { text: "⬅ Geri", nextStep: "start" }
+      ]
     },
-    burs_options: {
-      message: "Takım sporlarında okulu temsil edenlere %100 burs verilir. Maddi sıkıntılar için sule.fidan@dso.bau.edu.tr adresine ulaşabilirsin.",
-      options: [{ text: "⬅ Geri", nextStep: "sss_main" }]
+    career_simulator_info: {
+      message: "Kariyer Simülatörü, mevcut mezun verileri ve hedef alanına göre AI önerileri üretir. Mevcut mezun sayısı her zaman güncel olarak hesaplanır.",
+      options: [
+        { text: "⬅ Geri", nextStep: "start" }
+      ]
     },
-    dekanlik_loc: {
-      message: "Beşiktaş Güney Kampüs D Blok 1. Kattadır. Ayrıca Kemerburgaz Future Kampüs'te de ofis bulunmaktadır.",
-      options: [{ text: "⬅ Geri", nextStep: "sss_main" }]
+    interview_coach_info: {
+      message: "Mülakat Koçu modülü, CV ve iş tanımına göre 7 soru sunar, yanıtları puanlar ve anlık geri bildirim verir.",
+      options: [
+        { text: "⬅ Geri", nextStep: "start" }
+      ]
+    },
+    feed_info: {
+      message: "Mezun Akışı bölümünde iş ilanları, etkinlikler ve başarı hikayeleri bulunur. Adminler kendi duyurularını yayınlayabilir.",
+      options: [
+        { text: "⬅ Geri", nextStep: "start" }
+      ]
     },
     // --- DEKANLIK HİZMETLERİ ---
     dekanlik_services: {
@@ -96,12 +107,14 @@ const botData = {
   // --- İNGİLİZCE KISMI ---
   en: {
     start: {
-      message: "Hello Mert! Welcome to BAU Alumni & Campus Life Assistant. How can I help you? 🎓",
+      message: "Hello! Welcome to the BAU Alumni System assistant. This platform guides you through the alumni map, interview coach, career simulator, analytics dashboard and alumni feed.",
       options: [
-        { text: "📅 Academic Calendar 25-26", nextStep: "academic" },
-        { text: "💡 FAQ", nextStep: "sss_main" },
-        { text: "🏥 Student Deanery Services", nextStep: "dekanlik_services" },
-        { text: "🛡️ System Admin Guide", nextStep: "admin_help" }
+        { text: "🧭 System Tour", nextStep: "system_overview" },
+        { text: "🗺️ Alumni Map", nextStep: "map_info" },
+        { text: "🔮 Career Simulator", nextStep: "career_simulator_info" },
+        { text: "🤖 Interview Coach", nextStep: "interview_coach_info" },
+        { text: "🏢 Alumni Feed", nextStep: "feed_info" },
+        { text: "🛡️ Admin Guide", nextStep: "admin_help" }
       ]
     },
     academic: {
@@ -126,24 +139,45 @@ const botData = {
       options: [{ text: "⬅ Back", nextStep: "academic" }, { text: "🏠 Main Menu", nextStep: "start" }]
     },
     sss_main: {
-      message: "Frequently Asked Questions:",
+      message: "Quick System Overview:",
       options: [
-        { text: "❓ How to Solve Problems?", nextStep: "help_center" },
-        { text: "🏆 Scholarships", nextStep: "burs_options" },
-        { text: "🏢 Where is the Deanery?", nextStep: "dekanlik_loc" },
+        { text: "🧭 System Features", nextStep: "system_overview" },
+        { text: "🗺️ Alumni Map", nextStep: "map_info" },
+        { text: "🔮 Career Simulator", nextStep: "career_simulator_info" },
+        { text: "🤖 Interview Coach", nextStep: "interview_coach_info" },
         { text: "🏠 Main Menu", nextStep: "start" }
       ]
     },
+    system_overview: {
+      message: "In this system:\n- The Alumni Map shows graduate distribution by city and country.\n- The AI Career Simulator generates a skill roadmap based on alumni data.\n- The Interview Coach provides 7 tailored questions, scoring and feedback.\n- The Analytics Dashboard offers filters, sector stats and trends.\n- The Alumni Feed shares job posts, events and success stories.",
+      options: [{ text: "⬅ Back", nextStep: "start" }]
+    },
+    map_info: {
+      message: "In Alumni Map, click countries to zoom in and cities to view graduates in that location.",
+      options: [{ text: "⬅ Back", nextStep: "start" }]
+    },
+    career_simulator_info: {
+      message: "The Career Simulator uses current alumni data and your target interest to create AI-driven career guidance.",
+      options: [{ text: "⬅ Back", nextStep: "start" }]
+    },
+    interview_coach_info: {
+      message: "The Interview Coach guides you through answers, scores your responses and offers real-time improvement tips.",
+      options: [{ text: "⬅ Back", nextStep: "start" }]
+    },
+    feed_info: {
+      message: "The Alumni Feed lets you see shared jobs, events and success stories. Admins can post announcements directly.",
+      options: [{ text: "⬅ Back", nextStep: "start" }]
+    },
     help_center: {
-      message: "You can create a request at help.bau.edu.tr or call 444 28 64 for any university-related issues.",
+      message: "This assistant focuses on the alumni system, including map, interview coach, career simulator and feed. Use the options to explore those modules.",
       options: [{ text: "⬅ Back", nextStep: "sss_main" }]
     },
     burs_options: {
-      message: "Athletes get up to 100% scholarship. For financial aid, contact sule.fidan@dso.bau.edu.tr.",
+      message: "Use the main menu to learn about the alumni map, AI career simulator, interview coach and the feed system.",
       options: [{ text: "⬅ Back", nextStep: "sss_main" }]
     },
     dekanlik_loc: {
-      message: "Located at Besiktas South Campus, Block D, 1st Floor. Also an office is available at Kemerburgaz Future Campus.",
+      message: "The BAU Alumni System is built to navigate alumni data, careers, and interview practice. Check the featured modules from the main menu.",
       options: [{ text: "⬅ Back", nextStep: "sss_main" }]
     },
     dekanlik_services: {

@@ -10,9 +10,6 @@ public class Alumni {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    @Column(name = "student_id", nullable = false)
-    private String studentId;
 
     @Column(name = "first_name", nullable = false)
     private String firstName;
@@ -31,13 +28,9 @@ public class Alumni {
     @Column(name = "job_title") 
     private String jobTitle;
     
-    @Column(name = "linkedin_url")
-    private String linkedinUrl;
-    
     private Double latitude;
     private Double longitude;
     
-    // --- SEKTÖR İLİŞKİSİ (YENİ EKLENDİ) ---
     @ManyToOne(fetch = FetchType.EAGER) 
     @JoinColumn(name = "sector_id")
     private Sector sector;
@@ -54,14 +47,6 @@ public class Alumni {
     @Column(name = "ai_last_update")
     private LocalDateTime aiLastUpdate;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
     public Alumni() {
     }
 
@@ -69,9 +54,6 @@ public class Alumni {
     
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-
-    public String getStudentId() { return studentId; }
-    public void setStudentId(String studentId) { this.studentId = studentId; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -94,9 +76,6 @@ public class Alumni {
     public String getJobTitle() { return jobTitle; }
     public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
     
-    public String getLinkedinUrl() { return linkedinUrl; }
-    public void setLinkedinUrl(String linkedinUrl) { this.linkedinUrl = linkedinUrl; }
-    
     public Double getLatitude() { return latitude; }
     public void setLatitude(Double latitude) { this.latitude = latitude; }
 
@@ -118,7 +97,4 @@ public class Alumni {
 
     public LocalDateTime getAiLastUpdate() { return aiLastUpdate; }
     public void setAiLastUpdate(LocalDateTime aiLastUpdate) { this.aiLastUpdate = aiLastUpdate; }
-
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
