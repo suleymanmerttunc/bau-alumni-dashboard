@@ -1,10 +1,16 @@
 package com.bau.alumni.service.impl;
 
 import com.bau.alumni.dto.InterviewQuestion;
+
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 import java.util.*;
 
 @Service
@@ -77,6 +83,34 @@ public class AIService {
             """;
 
         return callGroq(systemPrompt, interviewLog.toString(), true);
+    }
+    
+    // 1. PDF'den Metin Çıkarma
+    public String extractTextFromPdf(MultipartFile file) {
+        try (PDDocument document = PDDocument.load(file.getInputStream())) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            return stripper.getText(document);
+        } catch (IOException e) {
+            return "HATA: PDF okunamadı.";
+        }
+    }
+
+    // 2. AI Analiz Metodu
+    public String calculateMatchScore(String cvText, String jdText) {
+        String systemPrompt = """
+            Sen profesyonel bir İK Analiz Uzmanısın. SADECE JSON formatında cevap ver.
+            Yapı: {
+              "matchScore": 85,
+              "summary": "Analiz özeti...",
+              "matchedSkills": ["Skill1", "Skill2"],
+              "missingSkills": ["Skill3"],
+              "recommendations": ["Tavsiye 1"]
+            }
+            Kriter: Teknik yetkinlik ve iş tanımı uyumu.
+            """;
+
+        String userPrompt = "CV İÇERİĞİ:\n" + cvText + "\n\nİŞ TANIMI:\n" + jdText;
+        return callGroq(systemPrompt, userPrompt, true);
     }
 
     // --- YARDIMCI GROQ ÇAĞRI METODU ---

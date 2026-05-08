@@ -20,6 +20,7 @@ import SectorDetailModal from './components/SectorDetailModal';
 import TitleWordCloud from './components/TitleWordCloud';
 import CareerOracleModal from './components/CareerOracleModal';
 import InterviewCoachModule from './components/InterviewCoachModule';
+import CVMatcherModule from './components/CVMatcherModule';
 import botData from './ai';
 import './App.css';
 
@@ -441,6 +442,13 @@ function App() {
                 style={{ borderRadius: 0 }}
               >
                 🤖 {t('interview_tab')}
+              </button>
+              <button
+                className={`btn btn-lg px-5 fw-bold ${activeTab === 'cv-matcher' ? 'border-warning border-bottom border-4 text-warning' : 'text-muted'}`}
+                onClick={() => setActiveTab('cv-matcher')}
+                style={{ borderRadius: 0 }}
+              >
+                🎯 AI CV Matcher
               </button>
             </div>
           </div>
@@ -908,6 +916,13 @@ function App() {
                     <div className="interview-card-container">
                       <InterviewCoachModule />
                     </div>
+                  </div>
+                )}
+
+                {/* CV MATCHER TAB */}
+                {activeTab === 'cv-matcher' && (
+                  <div className="content-body animate__animated animate__fadeIn">
+                    <CVMatcherModule />
                   </div>
                 )}
               </>

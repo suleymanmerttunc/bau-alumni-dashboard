@@ -104,4 +104,15 @@ public class AIController {
             return ResponseEntity.internalServerError().body("{\"error\": \"Değerlendirme hatası\"}");
         }
     }
+    
+    @PostMapping("/match-cv")
+    public ResponseEntity<String> matchCV(
+            @RequestParam("cvFile") MultipartFile cvFile,
+            @RequestParam("jdText") String jdText) {
+        
+        String cvContent = aiService.extractTextFromPdf(cvFile);
+        String analysis = aiService.calculateMatchScore(cvContent, jdText);
+        
+        return ResponseEntity.ok(analysis);
+    }
 }
