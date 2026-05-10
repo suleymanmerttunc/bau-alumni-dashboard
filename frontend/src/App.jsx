@@ -243,10 +243,11 @@ function App() {
   };
 
   const analyzeTopEmployers = (data) => {
+    const excludedCompanies = new Set(['Çalışmıyor', 'Linkedin yok', 'İş arıyor','Tespit Edilemedi','Yüksek Lisans Yapıyor']);
     const companyCounts = {};
     data.forEach(a => {
       const company = a.companyName || a.currentCompany;
-      if (company && company !== 'Unspecified') {
+      if (company && company !== 'Unspecified' && !excludedCompanies.has(company)) {
         companyCounts[company] = (companyCounts[company] || 0) + 1;
       }
     });
@@ -448,7 +449,7 @@ function App() {
                 onClick={() => setActiveTab('cv-matcher')}
                 style={{ borderRadius: 0 }}
               >
-                🎯 AI CV Matcher
+                🎯 {t('cv_matcher_tab')}
               </button>
             </div>
           </div>

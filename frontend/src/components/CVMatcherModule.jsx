@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import '../styles/CVMatcher.css';
 
 const CVMatcherModule = () => {
+    const { t } = useTranslation();
     const [jdText, setJdText] = useState("");
     const [file, setFile] = useState(null);
     const [pdfPreview, setPdfPreview] = useState(null);
@@ -46,27 +48,33 @@ const CVMatcherModule = () => {
                 {/* SOL: GİRİŞ ALANI */}
                 <div className="col-md-5">
                     <div className="card bg-dark text-white p-4 border-0 shadow-lg">
-                        <h5 className="text-warning mb-3">Target Job Description</h5>
+                        <h5 className="text-warning mb-3">{t('cv_matcher_target_title')}</h5>
                         <textarea 
                             className="form-control bg-black text-white border-secondary mb-3"
                             rows="10"
-                            placeholder="Paste the job requirements here..."
+                            placeholder={t('cv_matcher_jd_placeholder')}
                             value={jdText}
                             onChange={(e) => setJdText(e.target.value)}
                         />
+                        <div className="custom-file-selector mb-3 d-flex gap-2 align-items-center">
+                            <label htmlFor="cv-file-input" className="btn btn-secondary flex-shrink-0" style={{ minWidth: '140px' }}>
+                                {t('cv_matcher_file_button')}
+                            </label>
+                            <span className="file-status text-white">{file ? file.name : t('cv_matcher_file_no_selected')}</span>
+                        </div>
                         <input 
+                            id="cv-file-input"
                             type="file" 
-                            className="form-control mb-3" 
+                            className="d-none" 
                             onChange={handleFileChange} 
                             accept=".pdf"
-                            style={{ backgroundColor: '#1a1a1a', color: '#fff', borderColor: '#333' }}
                         />
                         <button 
                             className="btn btn-warning w-100 fw-bold py-2"
                             disabled={loading || !file || !jdText}
                             onClick={handleAnalyze}
                         >
-                            {loading ? "🔍 Scanning & Matching..." : "🎯 Match My CV"}
+                            {loading ? t('cv_matcher_button_loading') : t('cv_matcher_button_match')}
                         </button>
                     </div>
                 </div>
@@ -75,21 +83,21 @@ const CVMatcherModule = () => {
                 <div className="col-md-7">
                     <div className="cv-preview-wrapper">
                         <div className="cv-preview-header">
-                            <span className="preview-title">📋 CV Preview</span>
+                            <span className="preview-title">📋 {t('cv_matcher_preview_title')}</span>
                             {file && <span className="file-name">{file.name}</span>}
                         </div>
                         <div className="cv-preview-container">
                             {loading && <div className="scanner-line"></div>}
                             {pdfPreview ? (
                                 <div className="pdf-iframe-wrapper">
-                                    <iframe src={pdfPreview} width="100%" height="100%" title="CV Preview" />
+                                    <iframe src={pdfPreview} width="100%" height="100%" title={t('cv_matcher_preview_title')} />
                                 </div>
                             ) : (
                                 <div className="h-100 d-flex align-items-center justify-content-center text-secondary">
                                     <div className="text-center">
                                         <div className="empty-state-icon">📄</div>
-                                        <p className="empty-state-text">Upload a PDF to start scanning</p>
-                                        <small className="text-muted d-block mt-2">Supported format: PDF</small>
+                                        <p className="empty-state-text">{t('cv_matcher_empty_message')}</p>
+                                        <small className="text-muted d-block mt-2">{t('cv_matcher_empty_subtext')}</small>
                                     </div>
                                 </div>
                             )}
@@ -97,9 +105,9 @@ const CVMatcherModule = () => {
                         {loading && (
                             <div className="cv-preview-footer">
                                 <div className="spinner-border spinner-border-sm text-warning me-2" role="status">
-                                    <span className="visually-hidden">Loading...</span>
+                                    <span className="visually-hidden">{t('cv_matcher_loading_aria')}</span>
                                 </div>
-                                <span>Scanning... {Math.round((Date.now() % 4000) / 40)}%</span>
+                                <span>{t('cv_matcher_scanning_text')} {Math.round((Date.now() % 4000) / 40)}%</span>
                             </div>
                         )}
                     </div>
@@ -120,17 +128,17 @@ const CVMatcherModule = () => {
                                 margin: '0 auto'
                             }}>
                                 <h2 className="text-warning mb-0">%{result.matchScore || 0}</h2>
-                                <small className="text-muted">Match Score</small>
+                                <small className="text-muted">{t('cv_matcher_score_label')}</small>
                             </div>
                         </div>
                         <div className="col-md-9">
-                            <h4 className="mb-3">✅ Match Analysis</h4>
-                            <p className="text-muted">{result.summary || "Analysis complete"}</p>
+                            <h4 className="mb-3">✅ {t('cv_matcher_result_title')}</h4>
+                            <p className="text-muted">{result.summary || t('cv_matcher_analysis_complete')}</p>
                             
                             {/* Matched Skills */}
                             {result.matchedSkills && result.matchedSkills.length > 0 && (
                                 <div className="mt-3">
-                                    <h6 className="text-success mb-2">✨ Matched Skills</h6>
+                                    <h6 className="text-success mb-2">✨ {t('cv_matcher_matched_skills')}</h6>
                                     <div className="d-flex flex-wrap gap-2">
                                         {result.matchedSkills.map((skill, idx) => (
                                             <span key={idx} className="badge bg-success">{skill}</span>
@@ -142,7 +150,7 @@ const CVMatcherModule = () => {
                             {/* Missing Skills */}
                             {result.missingSkills && result.missingSkills.length > 0 && (
                                 <div className="mt-3">
-                                    <h6 className="text-warning mb-2">⚠️ Missing Skills</h6>
+                                    <h6 className="text-warning mb-2">⚠️ {t('cv_matcher_missing_skills')}</h6>
                                     <div className="d-flex flex-wrap gap-2">
                                         {result.missingSkills.map((skill, idx) => (
                                             <span key={idx} className="badge bg-warning text-dark">{skill}</span>
