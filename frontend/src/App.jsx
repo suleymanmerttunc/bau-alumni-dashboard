@@ -70,6 +70,33 @@ function App() {
   // TEMA
   const [darkMode, setDarkMode] = useState(false);
 
+  /**
+   * KVKK Gereği: İsim Maskeleme Fonksiyonu
+   * "Ahmet Süleyman Mert Tunç" -> "Ahmet Süleyman Mert T."
+   * "Mert Tunç" -> "Mert T."
+   */
+  const maskName = (firstName, lastName) => {
+    const names = [];
+    if (firstName && firstName.trim()) {
+      names.push(firstName.trim());
+    }
+    if (lastName && lastName.trim()) {
+      names.push(lastName.trim());
+    }
+
+    const tokens = names
+      .join(' ')
+      .split(' ')
+      .filter(name => name.length > 0);
+
+    if (tokens.length === 0) return '';
+    if (tokens.length === 1) return tokens[0];
+
+    const last = tokens[tokens.length - 1];
+    const prefix = tokens.slice(0, -1).map(name => name.charAt(0).toUpperCase() + name.slice(1)).join(' ');
+    return `${prefix} ${last.charAt(0).toUpperCase()}.`;
+  };
+
   // DATA FETCHING İŞLEMLERİ
   const fetchAlumniData = async () => {
     try {
@@ -652,6 +679,7 @@ function App() {
                       <InteractiveMap
                         alumniList={filteredAlumni}
                         isAdmin={userRole === 'ROLE_ADMIN'}
+                        maskName={maskName}
                       />
                     </div>
 
@@ -730,7 +758,7 @@ function App() {
                                   </div>
                                   <div>
                                     <h5 className="card-title fw-bold mb-0">
-                                      {alumni.firstName} {alumni.lastName}
+                                      {maskName(alumni.firstName, alumni.lastName)}
                                     </h5>
                                     <p className="text-muted small mb-0">{alumni.jobTitle}</p>
                                   </div>
@@ -1013,6 +1041,7 @@ function App() {
             onHide={() => setShowAdminModal(false)}
             alumniList={alumniList}
             onDelete={handleDeleteAlumni}
+            maskName={maskName}
           />
 
           <CareerOracleModal

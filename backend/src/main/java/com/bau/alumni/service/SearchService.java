@@ -30,7 +30,7 @@ public class SearchService {
             headers.set("X-API-KEY", serperKey);
 
             // Sorguyu spesifik hale getiriyoruz: İsim + Soyisim + Okul + Bölüm + LinkedIn
-            String query = firstName + " " + lastName + " Software Engineering Bahçeşehir Üniversitesi linkedin";
+            String query = firstName + " " + lastName + " Industrial Engineering Bahçeşehir Üniversitesi linkedin";
             
             Map<String, Object> body = new HashMap<>();
             body.put("q", query);

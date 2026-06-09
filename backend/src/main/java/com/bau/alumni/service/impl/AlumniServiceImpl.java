@@ -62,7 +62,6 @@ public class AlumniServiceImpl implements AlumniService {
     @Override
     @Transactional
     public AlumniDTO saveAlumni(AlumniCreateRequest request) {
-        // Yeni bir Alumni nesnesi oluşturuyoruz (User tablosuyla bağ koptu)
         Alumni alumni = new Alumni();
         alumni.setFirstName(formatText(request.getFirstName()));
         alumni.setLastName(formatText(request.getLastName()));

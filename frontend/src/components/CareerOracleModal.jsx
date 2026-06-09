@@ -12,9 +12,14 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
     const [skillsLoading, setSkillsLoading] = useState(false);
 
     React.useEffect(() => {
-        setResult("");
-        setSkills([]);
-    }, [formData.dept, formData.grade]);
+        if (show) {
+            setFormData({ dept: '', grade: '1', interest: '' });
+            setResult("");
+            setSkills([]);
+            setLoading(false);
+            setSkillsLoading(false);
+        }
+    }, [show]);
 
     const handleSimulate = async () => {
         setLoading(true);
@@ -44,11 +49,50 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
         setSkillsLoading(true);
         try {
             const res = await axios.post('http://localhost:8080/api/ai/skills', { interest: formData.interest });
-            // Backend'den gelen JSON'ı parse et
             const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-            setSkills(data.skills);
+
+            const normalizeSkillItem = (item) => {
+                if (typeof item === 'string') {
+                    return { name: item, desc: '' };
+                }
+                if (item && typeof item === 'object') {
+                    return {
+                        name: item.name || item.title || item.skill || item.adi || '',
+                        desc: item.desc || item.description || item.aciklama || item.aciklama || ''
+                    };
+                }
+                return { name: '', desc: '' };
+            };
+
+            const normalizeSkills = (value) => {
+                if (Array.isArray(value)) {
+                    return value.map(normalizeSkillItem);
+                }
+                if (value && typeof value === 'object') {
+                    if (Array.isArray(value.skills)) {
+                        return normalizeSkills(value.skills);
+                    }
+                    if (Array.isArray(value.yetenekler)) {
+                        return normalizeSkills(value.yetenekler);
+                    }
+                    const arrayValue = Object.values(value).find(Array.isArray);
+                    if (arrayValue) {
+                        return normalizeSkills(arrayValue);
+                    }
+                    return Object.entries(value).map(([key, entry]) => {
+                        if (typeof entry === 'string') {
+                            return { name: key, desc: entry };
+                        }
+                        return normalizeSkillItem(entry);
+                    });
+                }
+                return [];
+            };
+
+            setSkills(normalizeSkills(data));
         } catch (e) {
-            console.error("Yetenekler alınamadı");
+            console.error("Yetenekler alınamadı", e);
+            setSkills([]);
         } finally {
             setSkillsLoading(false);
         }
@@ -82,6 +126,7 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
                         <Form.Group className="mb-4">
                             <Form.Label className="small fw-bold text-muted">{t('career_oracle_interest')}</Form.Label>
                             <Form.Control
+                                value={formData.interest}
                                 placeholder={t('career_oracle_interest_placeholder')}
                                 onChange={e => setFormData({ ...formData, interest: e.target.value })}
                             />
@@ -120,7 +165,7 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
 
                                 {/* 2. KISIM: YETENEK ANALİZ BUTONU VE LİSTESİ */}
                                 <div className="skill-section">
-                                    {skills.length === 0 ? (
+                                    {(!Array.isArray(skills) || skills.length === 0) ? (
                                         <div className="text-center py-3">
                                             <button
                                                 className="btn btn-outline-info rounded-pill px-4 shadow-sm fw-bold"

@@ -7,7 +7,7 @@ const AlumniService = {
    */
   getAllAlumni: async () => {
     try {
-      const response = await api.get("/alumni?page=0&size=1000");
+      const response = await api.get("/alumni?page=0&size=2000");
       // Backend Page nesnesi döndüğü için veriler 'content' içinde gelir
       return response.data.content || response.data; 
     } catch (error) {

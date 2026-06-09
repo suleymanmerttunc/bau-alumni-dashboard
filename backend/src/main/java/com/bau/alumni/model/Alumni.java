@@ -42,7 +42,7 @@ public class Alumni {
     private String currentTitle;   
 
     @Column(name = "ai_processed")
-    private boolean aiProcessed = false;
+    private Boolean aiProcessed = false;
 
     @Column(name = "ai_last_update")
     private LocalDateTime aiLastUpdate;
@@ -82,7 +82,6 @@ public class Alumni {
     public Double getLongitude() { return longitude; }
     public void setLongitude(Double longitude) { this.longitude = longitude; }
 
-    // SEKTÖR GETTER & SETTER
     public Sector getSector() { return sector; }
     public void setSector(Sector sector) { this.sector = sector; }
     
@@ -92,8 +91,9 @@ public class Alumni {
     public String getCurrentTitle() { return currentTitle; }
     public void setCurrentTitle(String currentTitle) { this.currentTitle = currentTitle; }
 
-    public boolean isAiProcessed() { return aiProcessed; }
-    public void setAiProcessed(boolean aiProcessed) { this.aiProcessed = aiProcessed; }
+    // Boolean tipine uygun getter/setter güncellendi
+    public Boolean getAiProcessed() { return aiProcessed; }
+    public void setAiProcessed(Boolean aiProcessed) { this.aiProcessed = aiProcessed; }
 
     public LocalDateTime getAiLastUpdate() { return aiLastUpdate; }
     public void setAiLastUpdate(LocalDateTime aiLastUpdate) { this.aiLastUpdate = aiLastUpdate; }

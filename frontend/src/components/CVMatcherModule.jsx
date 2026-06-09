@@ -10,6 +10,14 @@ const CVMatcherModule = () => {
     const [pdfPreview, setPdfPreview] = useState(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
+    const [resultCache, setResultCache] = useState({});
+
+    const generateCacheKey = async (cvFile, jdText) => {
+        // File ismini ve JD text'ini kullanarak basit cache key oluştur
+        const fileKey = cvFile ? `${cvFile.name}_${cvFile.size}` : '';
+        const jdKey = jdText || '';
+        return `${fileKey}::${jdKey}`;
+    };
 
     const handleFileChange = (e) => {
         const selected = e.target.files[0];
@@ -21,19 +29,82 @@ const CVMatcherModule = () => {
 
     const handleAnalyze = async () => {
         setLoading(true);
-        const formData = new FormData();
-        formData.append("cvFile", file);
-        formData.append("jdText", jdText);
-
-        // Psikolojik bekleme süresi (Lazer efektini görsünler diye)
-        const delay = new Promise(res => setTimeout(res, 4000));
         
         try {
+            // Cache key oluştur
+            const cacheKey = await generateCacheKey(file, jdText);
+            
+            // Eğer cache'de varsa, cache'ten dön
+            if (resultCache[cacheKey]) {
+                console.log("Cache'ten sonuç kullanılıyor");
+                setResult(resultCache[cacheKey]);
+                setLoading(false);
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("cvFile", file);
+            formData.append("jdText", jdText);
+
+            // Psikolojik bekleme süresi (Lazer efektini görsünler diye)
+            const delay = new Promise(res => setTimeout(res, 4000));
+            
             const [response] = await Promise.all([
                 axios.post("http://localhost:8080/api/ai/match-cv", formData),
                 delay
             ]);
-            setResult(response.data);
+
+            // Backend'den gelen veriye karşı daha agresif deduplicate ve validasyon
+            const cleanSkillsList = (list) => {
+                if (!Array.isArray(list)) return [];
+                return list
+                    .filter(Boolean)
+                    .map(item => String(item).trim())
+                    .filter(item => item.length > 0);
+            };
+
+            const rawMatched = cleanSkillsList(response.data.matchedSkills);
+            const rawMissing = cleanSkillsList(response.data.missingSkills);
+
+            // Tüm skillsleri merge edip, case-insensitive deduplicate et
+            const allSkills = [...rawMatched, ...rawMissing];
+            const skillMap = new Map(); // key: lowercase, value: original case
+            
+            allSkills.forEach(skill => {
+                const lower = skill.toLowerCase();
+                if (!skillMap.has(lower)) {
+                    skillMap.set(lower, skill);
+                }
+            });
+
+            // Matched skillsleri lowercase set'e koy
+            const matchedLowerSet = new Set(
+                rawMatched.map(s => s.toLowerCase())
+            );
+
+            // Final matched skills: skillMap'ten matched'de olanlar
+            const matchedSkills = Array.from(skillMap.entries())
+                .filter(([lower]) => matchedLowerSet.has(lower))
+                .map(([, original]) => original);
+
+            // Final missing skills: skillMap'ten matched'de OLMAYanlar
+            const missingSkills = Array.from(skillMap.entries())
+                .filter(([lower]) => !matchedLowerSet.has(lower))
+                .map(([, original]) => original);
+
+            const processedResult = {
+                ...response.data,
+                matchedSkills,
+                missingSkills
+            };
+
+            // Sonucu cache'e ekle
+            setResultCache(prev => ({
+                ...prev,
+                [cacheKey]: processedResult
+            }));
+
+            setResult(processedResult);
         } catch (error) {
             console.error("Analiz hatası!", error);
             alert("Analiz sırasında bir hata oluştu. Lütfen tekrar deneyin.");

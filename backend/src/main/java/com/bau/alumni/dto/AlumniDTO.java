@@ -8,9 +8,9 @@ public class AlumniDTO {
     private Integer graduationYear;
     private String country;
     private String city;
-    private String jobTitle;      // Kullanıcının kayıt olurken girdiği hedef unvan
-    private String currentTitle;  // AI'nın LinkedIn'den bulduğu gerçek unvan
-    private String companyName;   // AI'nın bulduğu veya manuel girilen şirket
+    private String jobTitle;
+    private String currentTitle;  
+    private String companyName;   
     private String linkedinUrl;
     private Double latitude;
     private Double longitude;

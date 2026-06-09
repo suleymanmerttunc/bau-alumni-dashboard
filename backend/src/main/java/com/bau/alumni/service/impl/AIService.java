@@ -20,6 +20,50 @@ public class AIService {
     private String apiKey;
 
     private final String GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
+    
+    public String analyzeCompanyAndSector(String snippets) {
+        String systemPrompt = """
+            Sen kıdemli bir Veri Analisti, İK Uzmanı ve Coğrafi Bilgi Sistemleri (GIS) stratejistisin.
+            Sana bir mezunun internetteki (LinkedIn sorgu özetleri gibi) ham metin verileri (snippets) verilecek.
+            Bu verileri analiz ederek yapılandırılmış bir JSON çıktısı üretmelisin.
+            
+            İŞLEME ALGORİTMASI VE KURALLAR:
+            
+            1. ŞİRKET VE UNVAN TESPİTİ:
+               - Metinden kişinin şu an aktif olarak çalıştığı güncel şirket adını ve unvanını (Title) çıkar.
+               
+            2. SEKTÖR SINIFLANDIRMASI (sectorId):
+               - Şirketin faaliyet alanına göre aşağıdaki listeden EN UYGUN sektör ID'sini seç:
+                 1 -> Information Technology          2 -> Software Development
+                 3 -> Defense & Aerospace             4 -> Automotive
+                 5 -> Energy & Sustainability         6 -> Fintech & Banking
+                 7 -> Aviation                        8 -> Construction
+                 9 -> Telecommunications             10 -> E-Commerce
+                 11 -> AI & Data Science             12 -> Gaming
+                 13 -> HealthTech                    14 -> Freelance
+                 15 -> Unemployed                    16 -> Master's degree
+                 17 -> Digital Marketing & Advertising 18 -> Logistics & Supply Chain
+                 19 -> Other                         20 -> Food & Beverages
+
+            3. LOKASYON VE ŞEHİR STRATEJİSİ:
+               - ADIM 3.1 (Öncelikli Veri): Sana verilen metin (snippet) içeriğini çok sıkı tara. Eğer metnin içinde şirket ismiyle birlikte yan yana veya paragraf içinde geçen net bir şehir/ülke ibaresi varsa (Örn: "Ankara", "Istanbul", "Izmir", "Almaty", "Berlin"), doğrudan o şehri ve ülkeyi seç.
+               - ADIM 3.2 (Genel Merkez Çözümlemesi): Eğer metin içinden kişinin çalıştığı spesifik şehir hiçbir şekilde ANLAŞILMIYORSA; o şirketin (global veya yerel) genel merkezinin (Headquarters) yasal olarak hangi şehirde bulunduğunu kendi bilgi dağarcığından (knowledge base) sorgula ve o şehri/ülkeyi ata. (Örn: Sadece "Rönesans Holding" yazıyor ve şehir geçmiyorsa genel merkezi Ankara olduğu için Ankara seç; sadece "Trendyol" yazıyor ve şehir geçmiyorsa İstanbul seç).
+               
+            4. DİL VE ÇIKTI STANDARDI:
+               - Şehir isimlerini Türkçe karakterlere uygun ve net yaz (Örn: "İstanbul", "Ankara", "Almatı", "Kocaeli").
+               
+            SADECE AŞAĞIDAKİ JSON FORMATINDA YANIT VER (Başka hiçbir açıklama veya metin ekleme):
+            {
+              "company": "Şirket Adı",
+              "title": "Unvan",
+              "sectorId": 1,
+              "country": "Ülke Adı",
+              "city": "Şehir Adı"
+            }
+            """;
+
+        return callGroq(systemPrompt, snippets, true);
+    }
 
     // --- MEVCUT KARİYER SİMÜLASYONU METODLARI ---
     public String generateSimulation(String dept, String grade, String interest, Map<String, Object> stats) {

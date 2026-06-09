@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { Modal, Button, Table, Row, Col } from 'react-bootstrap';
 import { FaArrowLeft, FaEye, FaTrash, FaExternalLinkAlt } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
-const AlumniManagementModal = ({ show, onHide, alumniList, onDelete }) => {
+const AlumniManagementModal = ({ show, onHide, alumniList, onDelete, maskName }) => {
+  const { t } = useTranslation();
   const [selectedAlumni, setSelectedAlumni] = useState(null); // Detay gösterilecek mezun
 
   const handleBack = () => setSelectedAlumni(null);
 
   const handleDeleteAndBack = (id) => {
-    if (window.confirm("Bu mezun kaydını silmek istediğinize emin misiniz?")) {
+    if (window.confirm(t('delete_confirm'))) {
       onDelete(id);
       handleBack();
     }
@@ -20,38 +22,38 @@ const AlumniManagementModal = ({ show, onHide, alumniList, onDelete }) => {
         <Modal.Title>
           {selectedAlumni ? (
             <div className="d-flex align-items-center">
-              <Button variant="link" className="text-white me-2 p-0" onClick={handleBack} title="Geri">
+              <Button variant="link" className="text-white me-2 p-0" onClick={handleBack} title={t('back')}>
                 <FaArrowLeft />
               </Button>
-              Mezun Detayı: {selectedAlumni.firstName} {selectedAlumni.lastName}
+              {t('alumni_detail_title')} {maskName(selectedAlumni.firstName, selectedAlumni.lastName)}
             </div>
           ) : (
-            "👥 Sistemdeki Tüm Mezunlar"
+            t('alumni_list_title')
           )}
         </Modal.Title>
       </Modal.Header>
       
       <Modal.Body style={{ minHeight: '300px' }}>
         {!selectedAlumni ? (
-          // --- TABLO GÖRÜNÜMÜ ---
+          // --- TABLE VIEW ---
           (!alumniList || alumniList.length === 0) ? (
             <div className="text-center py-4">
-              <p className="text-muted">Sistemde kayıtlı mezun bulunmuyor.</p>
+              <p className="text-muted">{t('alumni_list_empty')}</p>
             </div>
           ) : (
             <Table responsive hover className="align-middle">
               <thead className="table-light">
                 <tr>
-                  <th>Ad Soyad</th>
-                  <th>Öğrenci No</th>
-                  <th>Bölüm</th>
-                  <th className="text-center">İşlemler</th>
+                  <th>{t('alumni_table_name')}</th>
+                  <th>{t('alumni_table_student_id')}</th>
+                  <th>{t('alumni_table_department')}</th>
+                  <th className="text-center">{t('alumni_table_actions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {alumniList.map((alumni) => (
                   <tr key={alumni.id}>
-                    <td className="fw-bold">{alumni.firstName} {alumni.lastName}</td>
+                    <td className="fw-bold">{maskName(alumni.firstName, alumni.lastName)}</td>
                     <td><span className="badge bg-secondary">{alumni.studentId}</span></td>
                     <td>{alumni.department}</td>
                     <td className="text-center">
@@ -61,7 +63,7 @@ const AlumniManagementModal = ({ show, onHide, alumniList, onDelete }) => {
                           size="sm" 
                           onClick={() => setSelectedAlumni(alumni)}
                         >
-                          <FaEye /> İncele
+                          <FaEye /> {t('view')}
                         </Button>
                         <Button 
                           variant="outline-danger" 
@@ -78,36 +80,36 @@ const AlumniManagementModal = ({ show, onHide, alumniList, onDelete }) => {
             </Table>
           )
         ) : (
-          // --- DETAY GÖRÜNÜMÜ ---
+          // --- DETAIL VIEW ---
           <div className="user-details">
             <Row className="mb-4 shadow-sm p-3 rounded bg-light border-start border-primary border-4">
               <Col md={6}>
-                <p><strong>📝 Ad Soyad:</strong> {selectedAlumni.firstName} {selectedAlumni.lastName}</p>
-                <p><strong>🎓 Öğrenci No:</strong> {selectedAlumni.studentId}</p>
-                <p><strong>📚 Bölüm:</strong> {selectedAlumni.department}</p>
-                <p><strong>📅 Mezuniyet Yılı:</strong> {selectedAlumni.graduationYear}</p>
+                <p><strong>{t('label_name')}:</strong> {maskName(selectedAlumni.firstName, selectedAlumni.lastName)}</p>
+                <p><strong>{t('label_student_id')}:</strong> {selectedAlumni.studentId}</p>
+                <p><strong>{t('label_department')}:</strong> {selectedAlumni.department}</p>
+                <p><strong>{t('label_graduation_year')}:</strong> {selectedAlumni.graduationYear}</p>
               </Col>
               <Col md={6}>
-                <p><strong>📍 Konum:</strong> {selectedAlumni.city}, {selectedAlumni.country}</p>
-                <p><strong>💼 Şirket (AI):</strong> {selectedAlumni.companyName || 'Analiz Ediliyor...'}</p>
-                <p><strong>📧 Ünvan (AI):</strong> {selectedAlumni.currentTitle || selectedAlumni.jobTitle}</p>
+                <p><strong>{t('label_location')}:</strong> {selectedAlumni.city}, {selectedAlumni.country}</p>
+                <p><strong>{t('label_company_ai')}:</strong> {selectedAlumni.companyName || t('analysis_pending')}</p>
+                <p><strong>{t('label_title_ai')}:</strong> {selectedAlumni.currentTitle || selectedAlumni.jobTitle}</p>
                 <p>
-                  <strong>🔗 LinkedIn:</strong>{' '}
+                  <strong>{t('label_linkedin')}:</strong>{' '}
                   <a href={selectedAlumni.linkedinUrl} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-info">
-                    Profili Gör <FaExternalLinkAlt size={10} />
+                    {t('view_profile')} <FaExternalLinkAlt size={10} />
                   </a>
                 </p>
               </Col>
             </Row>
 
             <div className="alert alert-warning" role="alert">
-              <strong>⚠️ Dikkat:</strong> Bu mezun kaydını silerseniz harita ve istatistiklerden kaldırılacaktır.
+              <strong>⚠️ {t('attention')}:</strong> {t('alumni_delete_warning')}
             </div>
 
             <div className="d-flex gap-2 justify-content-end mt-4">
-                <Button variant="secondary" onClick={handleBack}>Geri Dön</Button>
+                <Button variant="secondary" onClick={handleBack}>{t('back')}</Button>
                 <Button variant="danger" onClick={() => handleDeleteAndBack(selectedAlumni.id)}>
-                  <FaTrash /> Kaydı Sil
+                  <FaTrash /> {t('delete_record')}
                 </Button>
             </div>
           </div>

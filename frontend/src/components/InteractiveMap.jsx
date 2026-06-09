@@ -4,7 +4,7 @@ import { Offcanvas } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
 
-const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick }) => {
+const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick, maskName }) => {
     const { t } = useTranslation();
     const [geoJsonData, setGeoJsonData] = useState(null);
     const [selectedCity, setSelectedCity] = useState(null);
@@ -167,7 +167,7 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                                         <span style={{ fontSize: '1.5rem' }}>🎓</span>
                                     </div>
                                     <div style={{ flex: 1 }}>
-                                        <h6 className="mb-0 fw-bold">{alumni.firstName} {alumni.lastName}</h6>
+                                        <h6 className="mb-0 fw-bold">{maskName(alumni.firstName, alumni.lastName)}</h6>
                                         {/* AI'dan gelen unvan varsa onu göster, yoksa manuel girileni kullan */}
                                         <small className="text-primary fw-semibold">
                                             {alumni.currentTitle || alumni.jobTitle}
