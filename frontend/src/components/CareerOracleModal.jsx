@@ -24,7 +24,6 @@ const CareerOracleModal = ({ show, onHide, departments, topEmployers, titleCloud
     const handleSimulate = async () => {
         setLoading(true);
         try {
-            // Veriyi temizleyerek gönderiyoruz (Tespit Edilemedi gibi kısımları ayıklayarak)
             const cleanCompanies = topEmployers
                 .filter(e => e.name && e.name !== "Tespit Edilemedi")
                 .slice(0, 5).map(e => e.name).join(", ");

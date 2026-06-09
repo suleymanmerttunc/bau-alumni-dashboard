@@ -13,7 +13,7 @@ const CVMatcherModule = () => {
     const [resultCache, setResultCache] = useState({});
 
     const generateCacheKey = async (cvFile, jdText) => {
-        // File ismini ve JD text'ini kullanarak basit cache key oluştur
+        // File ismini ve JD text'ini kullanarak basit cache key oluşturma işlemi
         const fileKey = cvFile ? `${cvFile.name}_${cvFile.size}` : '';
         const jdKey = jdText || '';
         return `${fileKey}::${jdKey}`;
@@ -22,7 +22,6 @@ const CVMatcherModule = () => {
     const handleFileChange = (e) => {
         const selected = e.target.files[0];
         setFile(selected);
-        // PDF viewer parametreleri: toolbar ve sidebar gizle, zoom fit
         const url = URL.createObjectURL(selected);
         setPdfPreview(url + '#toolbar=0&navpanes=0&view=Fit');
     };
@@ -31,10 +30,8 @@ const CVMatcherModule = () => {
         setLoading(true);
         
         try {
-            // Cache key oluştur
             const cacheKey = await generateCacheKey(file, jdText);
             
-            // Eğer cache'de varsa, cache'ten dön
             if (resultCache[cacheKey]) {
                 console.log("Cache'ten sonuç kullanılıyor");
                 setResult(resultCache[cacheKey]);
@@ -46,7 +43,7 @@ const CVMatcherModule = () => {
             formData.append("cvFile", file);
             formData.append("jdText", jdText);
 
-            // Psikolojik bekleme süresi (Lazer efektini görsünler diye)
+            // Lazer efektini görsünler diye yapay olarak 4 saniyelik bir delay.
             const delay = new Promise(res => setTimeout(res, 4000));
             
             const [response] = await Promise.all([
@@ -54,7 +51,6 @@ const CVMatcherModule = () => {
                 delay
             ]);
 
-            // Backend'den gelen veriye karşı daha agresif deduplicate ve validasyon
             const cleanSkillsList = (list) => {
                 if (!Array.isArray(list)) return [];
                 return list
@@ -68,7 +64,7 @@ const CVMatcherModule = () => {
 
             // Tüm skillsleri merge edip, case-insensitive deduplicate et
             const allSkills = [...rawMatched, ...rawMissing];
-            const skillMap = new Map(); // key: lowercase, value: original case
+            const skillMap = new Map(); 
             
             allSkills.forEach(skill => {
                 const lower = skill.toLowerCase();
@@ -77,17 +73,14 @@ const CVMatcherModule = () => {
                 }
             });
 
-            // Matched skillsleri lowercase set'e koy
             const matchedLowerSet = new Set(
                 rawMatched.map(s => s.toLowerCase())
             );
 
-            // Final matched skills: skillMap'ten matched'de olanlar
             const matchedSkills = Array.from(skillMap.entries())
                 .filter(([lower]) => matchedLowerSet.has(lower))
                 .map(([, original]) => original);
 
-            // Final missing skills: skillMap'ten matched'de OLMAYanlar
             const missingSkills = Array.from(skillMap.entries())
                 .filter(([lower]) => !matchedLowerSet.has(lower))
                 .map(([, original]) => original);
@@ -97,8 +90,7 @@ const CVMatcherModule = () => {
                 matchedSkills,
                 missingSkills
             };
-
-            // Sonucu cache'e ekle
+            
             setResultCache(prev => ({
                 ...prev,
                 [cacheKey]: processedResult

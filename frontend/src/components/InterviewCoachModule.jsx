@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import api from '../services/api'; // Axios instance
+import api from '../services/api';
 
 const getScoreDetails = (score, t) => {
     if (score < 40) return { color: '#ff4d4d', label: t('score_weak'), class: 'bg-danger' };

@@ -11,7 +11,6 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
     const [showSidebar, setShowSidebar] = useState(false);
     const [cityAlumni, setCityAlumni] = useState([]);
 
-    // 1. Dünya Ülke Sınırlarını Çek (GeoJSON)
     useEffect(() => {
         fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json')
             .then(response => response.json())
@@ -19,7 +18,6 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
             .catch(err => console.error("Harita verisi yüklenemedi:", err));
     }, []);
 
-    // 2. Mezunları Şehirlere Göre Grupla
     const groupedData = {};
     alumniList.forEach(alumni => {
         const city = alumni.city || "Bilinmiyor";
@@ -27,7 +25,6 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
         groupedData[city].push(alumni);
     });
 
-    // 3. Ülke Üzerine Gelince ve Tıklayınca Ne Olsun?
     const onEachCountry = (country, layer) => {
         layer.on({
             mouseover: (e) => {
@@ -42,14 +39,12 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
         });
     };
 
-    // Şehre tıklayınca Paneli Aç
     const handleCityClick = (city, alumni) => {
         setSelectedCity(city);
         setCityAlumni(alumni);
         setShowSidebar(true);
     };
 
-    // Check if we have any valid markers to display
     const validMarkers = Object.keys(groupedData).filter(city => {
         const cityAlumniList = groupedData[city];
         return cityAlumniList[0].latitude && cityAlumniList[0].longitude;
@@ -92,7 +87,7 @@ const InteractiveMap = ({ alumniList, isAdmin, pendingCount, onNotificationClick
                             {Object.keys(groupedData).map((city, index) => {
                                 const cityAlumniList = groupedData[city];
 
-                                // Backend'den gelen dinamik koordinatları al
+                                // Backend'den gelen dinamik koordinatları alıyoz
                                 const lat = cityAlumniList[0].latitude;
                                 const lon = cityAlumniList[0].longitude;
 

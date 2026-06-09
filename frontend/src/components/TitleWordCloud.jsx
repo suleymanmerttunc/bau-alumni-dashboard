@@ -2,7 +2,6 @@ import { useTranslation } from 'react-i18next';
 
 const TitleWordCloud = ({ data }) => {
   const { t } = useTranslation();
-  // Kelime bulutu renk paleti
   const colors = ['#6c5ce7', '#a29bfe', '#00cec9', '#0984e3', '#fdcb6e', '#e17055', '#74b9ff', '#81ecec', '#fab1a0', '#fd79a8'];
 
   return (
@@ -10,7 +9,6 @@ const TitleWordCloud = ({ data }) => {
       <h5 className="fw-bold mb-4">{t('title_word_cloud_title')}</h5>
       <div className="d-flex flex-wrap justify-content-center align-items-center" style={{ minHeight: '200px', gap: '8px' }}>
         {data.length > 0 ? data.map((word, index) => {
-          // Font boyutunu değerine göre ayarla (Örn: 10 ile 32 arası)
           const fontSize = Math.max(12, Math.min(32, 10 + word.value * 2));
           const color = colors[index % colors.length];
           

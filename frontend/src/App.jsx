@@ -70,11 +70,6 @@ function App() {
   // TEMA
   const [darkMode, setDarkMode] = useState(false);
 
-  /**
-   * KVKK Gereği: İsim Maskeleme Fonksiyonu
-   * "Ahmet Süleyman Mert Tunç" -> "Ahmet Süleyman Mert T."
-   * "Mert Tunç" -> "Mert T."
-   */
   const maskName = (firstName, lastName) => {
     const names = [];
     if (firstName && firstName.trim()) {
@@ -108,7 +103,7 @@ function App() {
       if (Array.isArray(alumniArray)) {
         const sortedData = alumniArray.sort((a, b) => b.id - a.id);
         setAlumniList(sortedData);
-        analyzeData(sortedData); // Sektör ve yıl analizini tetikler
+        analyzeData(sortedData); 
       } else {
         console.error("Beklenen liste formatı gelmedi:", response);
         setAlumniList([]);
@@ -201,11 +196,10 @@ function App() {
       }
     });
 
-    // WordCloud kütüphanesinin beklediği format { text: '...', value: 10 }
     const cloudData = Object.keys(counts).map(key => ({
       text: key,
       value: counts[key]
-    })).sort((a, b) => b.value - a.value).slice(0, 30); // En popüler 30 unvan
+    })).sort((a, b) => b.value - a.value).slice(0, 30); 
 
     setTitleCloudData(cloudData);
   };
@@ -224,12 +218,9 @@ function App() {
     const uniqueSectors = new Set();
 
     data.forEach(student => {
-      // SEKTÖR ANALİZİ DÜZELTMESİ:
-      // Eğer sectorName null ise, jobTitle üzerinden bir tahmin yürütelim
       let sector = student.sectorName;
 
       if (!sector && student.jobTitle) {
-        // Basit bir eşleme: Eğer unvanda "Engineer" veya "Developer" geçiyorsa IT yap
         const title = student.jobTitle.toLowerCase();
         if (title.includes('engineer') || title.includes('developer') || title.includes('software')) {
           sector = 'Information Technology';

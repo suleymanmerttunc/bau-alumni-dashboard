@@ -42,7 +42,7 @@ const LoginPage = ({ onLogin, onNavigateToRegister }) => {
             console.log("Giriş Başarılı (Statik):", loggedInUser);
             onLogin(loggedInUser);
         } else {
-            // İleride tekrar DB tabanlı login'e geçmek istersen axios bloğu burada hazır bekliyor
+            // İleride tekrar DB tabanlı login'e geçmek istersen axios bloğu burada hazır bekliyo olsun diye bıraktım. Şimdilik statik giriş yeterli olacak.
             /*
             try {
                 const response = await axios.post('http://localhost:8080/api/auth/login', {
